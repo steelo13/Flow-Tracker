@@ -5,7 +5,7 @@ import SymptomLogger from '../components/SymptomLogger';
 import { UserSettings, DailyLog } from '../types';
 import { calculateDaysUntilPeriod, getCycleDay, getCalendarDayStatus } from '../services/cycleService';
 import { logDailySymptoms, getDailyLog } from '../services/db';
-import { Calendar as CalendarIcon } from 'lucide-react';
+import { Calendar as CalendarIcon, Droplet, Moon, Minus, Plus } from 'lucide-react';
 
 interface HomeProps {
   userSettings: UserSettings;
@@ -15,6 +15,7 @@ const Home: React.FC<HomeProps> = ({ userSettings }) => {
   const [isLoggerOpen, setIsLoggerOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [dailyLog, setDailyLog] = useState<DailyLog | null>(null);
+  const [waterCups, setWaterCups] = useState(4); // Default/Mock state for water
 
   // Pass selectedDate to recalculate the main wheel based on user selection
   const daysUntil = calculateDaysUntilPeriod(userSettings, selectedDate);
@@ -143,21 +144,57 @@ const Home: React.FC<HomeProps> = ({ userSettings }) => {
         onLogClick={() => setIsLoggerOpen(true)}
       />
 
-      {/* Promo Banner */}
+      {/* Health & Lifestyle Section (Replaces Promo) */}
       <div className="px-4 mb-6">
-        <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-4 text-white shadow-lg relative overflow-hidden">
-           <div className="relative z-10">
-             <h3 className="font-bold text-lg mb-1">Flo Premium</h3>
-             <p className="text-xs text-purple-100 mb-3 max-w-[80%]">Get personalized health reports and unlimited access to video courses.</p>
-             <button className="bg-white text-indigo-600 text-xs font-bold px-4 py-2 rounded-full">
-               Try for free
-             </button>
-           </div>
-           <div className="absolute right-[-20px] top-[-20px] opacity-20">
-              <svg width="150" height="150" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-              </svg>
-           </div>
+        <h3 className="text-gray-800 font-bold text-lg mb-3">Health & Lifestyle</h3>
+        <div className="grid grid-cols-2 gap-3">
+            {/* Water Card */}
+            <div className="bg-blue-50 p-4 rounded-2xl border border-blue-100 flex flex-col justify-between h-32">
+            <div className="flex justify-between items-start">
+                <span className="font-bold text-blue-900 text-xs uppercase tracking-wider">Hydration</span>
+                <div className="p-1 bg-blue-100 rounded-full">
+                    <Droplet className="text-blue-500" size={14} fill="currentColor" />
+                </div>
+            </div>
+            <div className="flex items-center justify-between mt-2">
+                <button 
+                    onClick={() => setWaterCups(Math.max(0, waterCups - 1))}
+                    className="w-8 h-8 rounded-full bg-white text-blue-600 font-bold shadow-sm flex items-center justify-center active:scale-95 transition-transform"
+                >
+                    <Minus size={16} />
+                </button>
+                <div className="text-center">
+                    <span className="text-2xl font-bold text-blue-900">{waterCups}</span>
+                    <p className="text-[10px] text-blue-400 font-medium">cups</p>
+                </div>
+                <button 
+                    onClick={() => setWaterCups(waterCups + 1)}
+                    className="w-8 h-8 rounded-full bg-blue-500 text-white font-bold shadow-sm flex items-center justify-center active:scale-95 transition-transform"
+                >
+                    <Plus size={16} />
+                </button>
+            </div>
+            </div>
+
+            {/* Sleep Card */}
+            <div className="bg-indigo-50 p-4 rounded-2xl border border-indigo-100 flex flex-col justify-between h-32 relative overflow-hidden">
+            <div className="flex justify-between items-start z-10">
+                <span className="font-bold text-indigo-900 text-xs uppercase tracking-wider">Sleep</span>
+                <div className="p-1 bg-indigo-100 rounded-full">
+                    <Moon className="text-indigo-500" size={14} fill="currentColor" />
+                </div>
+            </div>
+            <div className="z-10 mt-2">
+                <span className="text-2xl font-bold text-indigo-900">7<span className="text-sm text-indigo-400">h</span> 30<span className="text-sm text-indigo-400">m</span></span>
+                <div className="w-full bg-indigo-200 h-1.5 rounded-full mt-2 overflow-hidden">
+                    <div className="bg-indigo-500 w-[85%] h-full rounded-full"></div>
+                </div>
+            </div>
+            <span className="text-[10px] text-indigo-400 font-medium mt-1 z-10">Target: 8h</span>
+            
+            {/* Decorative */}
+            <Moon className="absolute -bottom-4 -right-4 text-indigo-100 opacity-50" size={80} />
+            </div>
         </div>
       </div>
       
