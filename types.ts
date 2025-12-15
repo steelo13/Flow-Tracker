@@ -1,3 +1,4 @@
+
 export type CyclePhase = 'menstruation' | 'follicular' | 'ovulation' | 'luteal';
 
 export interface UserSettings {
@@ -28,6 +29,7 @@ export interface InsightArticle {
   category: string;
   imageUrl: string;
   readTime: string;
+  content: string;
 }
 
 export enum AppRoute {

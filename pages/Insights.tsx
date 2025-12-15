@@ -1,8 +1,9 @@
+
 import React, { useState } from 'react';
 import { INSIGHTS } from '../constants';
-import { PlayCircle, Sparkles, Send, Loader, Search, Info } from 'lucide-react';
+import { PlayCircle, Sparkles, Send, Loader, Search, Info, ArrowLeft, Clock } from 'lucide-react';
 import { GoogleGenAI } from "@google/genai";
-import { UserSettings } from '../types';
+import { UserSettings, InsightArticle } from '../types';
 
 interface InsightsProps {
   userSettings: UserSettings;
@@ -13,6 +14,7 @@ const Insights: React.FC<InsightsProps> = ({ userSettings }) => {
   const [query, setQuery] = useState('');
   const [aiResponse, setAiResponse] = useState<string | null>(null);
   const [isThinking, setIsThinking] = useState(false);
+  const [selectedArticle, setSelectedArticle] = useState<InsightArticle | null>(null);
 
   const categories = ['For You', 'Reproductive Health', 'Sex & Relationships', 'Pregnancy', 'Nutrition', 'Fitness'];
 
@@ -62,6 +64,59 @@ const Insights: React.FC<InsightsProps> = ({ userSettings }) => {
   // Fallback if no articles match category
   const displayInsights = filteredInsights.length > 0 ? filteredInsights : [];
 
+  // DETAIL VIEW
+  if (selectedArticle) {
+    return (
+      <div className="bg-white h-full pb-24 overflow-y-auto animate-fade-in">
+        <div className="relative h-64">
+           <img src={selectedArticle.imageUrl} className="w-full h-full object-cover" alt={selectedArticle.title} />
+           <div className="absolute top-4 left-4">
+             <button 
+               onClick={() => setSelectedArticle(null)}
+               className="bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-md text-gray-800 hover:bg-white transition-colors"
+             >
+               <ArrowLeft size={24} />
+             </button>
+           </div>
+           <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent pointer-events-none"></div>
+           <div className="absolute bottom-4 left-4 right-4 text-white">
+              <span className="inline-block bg-rose-500 text-xs font-bold px-2 py-1 rounded mb-2 uppercase tracking-wide">
+                {selectedArticle.category}
+              </span>
+              <h1 className="text-2xl font-bold leading-tight mb-2">{selectedArticle.title}</h1>
+              <div className="flex items-center text-xs font-medium text-white/90">
+                 <Clock size={14} className="mr-1" />
+                 <span>{selectedArticle.readTime}</span>
+              </div>
+           </div>
+        </div>
+        
+        <div className="p-6">
+           <div className="prose prose-purple max-w-none text-gray-700 leading-relaxed">
+             {selectedArticle.content.split('\n').map((paragraph, index) => (
+                paragraph.trim() && (
+                  <p key={index} className="mb-4">
+                    {paragraph}
+                  </p>
+                )
+             ))}
+           </div>
+           
+           <div className="mt-8 pt-6 border-t border-gray-100 flex items-center justify-between">
+              <span className="text-xs text-gray-400">Written by FlowTracker Medical Team</span>
+              <button 
+                onClick={() => setSelectedArticle(null)}
+                className="text-purple-600 font-bold text-sm hover:underline"
+              >
+                Back to Library
+              </button>
+           </div>
+        </div>
+      </div>
+    );
+  }
+
+  // LIST VIEW
   return (
     <div className="bg-gray-50 h-full pb-24 overflow-y-auto">
       {/* Header */}
@@ -162,7 +217,11 @@ const Insights: React.FC<InsightsProps> = ({ userSettings }) => {
             {displayInsights.length > 0 ? (
                 <div className="grid grid-cols-1 gap-4">
                 {displayInsights.map(article => (
-                    <div key={article.id} className="flex bg-white p-3 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all active:scale-[0.99] cursor-pointer">
+                    <div 
+                        key={article.id} 
+                        onClick={() => setSelectedArticle(article)}
+                        className="flex bg-white p-3 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all active:scale-[0.99] cursor-pointer"
+                    >
                     <div className="w-24 h-24 flex-shrink-0 bg-gray-200 rounded-xl overflow-hidden">
                         <img src={article.imageUrl} className="w-full h-full object-cover" alt={article.title} />
                     </div>
