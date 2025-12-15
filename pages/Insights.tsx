@@ -1,19 +1,22 @@
 
 import React, { useState } from 'react';
-import { INSIGHTS } from '../constants';
-import { PlayCircle, Sparkles, Send, Loader, Search, Info, ArrowLeft, Clock } from 'lucide-react';
+import { INSIGHTS, MASTERING_CYCLE_COURSE } from '../constants';
+import { PlayCircle, Sparkles, Send, Loader, Search, Info, ArrowLeft, Clock, ChevronRight, Check } from 'lucide-react';
 import { GoogleGenAI } from "@google/genai";
-import { UserSettings, InsightArticle } from '../types';
+import { UserSettings, InsightArticle, Course, Lesson } from '../types';
 
 interface InsightsProps {
   userSettings: UserSettings;
+  onUpdateSettings: (settings: Partial<UserSettings>) => void;
 }
 
-const Insights: React.FC<InsightsProps> = ({ userSettings }) => {
+const Insights: React.FC<InsightsProps> = ({ userSettings, onUpdateSettings }) => {
   const [query, setQuery] = useState('');
   const [aiResponse, setAiResponse] = useState<string | null>(null);
   const [isThinking, setIsThinking] = useState(false);
   const [selectedArticle, setSelectedArticle] = useState<InsightArticle | null>(null);
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
 
   const handleAskAI = async () => {
     if (!query.trim()) return;
@@ -54,7 +57,158 @@ const Insights: React.FC<InsightsProps> = ({ userSettings }) => {
     }
   };
 
-  // DETAIL VIEW
+  const handleCompleteLesson = (lessonId: string) => {
+    const completed = userSettings.completedLessons || [];
+    if (!completed.includes(lessonId)) {
+        onUpdateSettings({
+            completedLessons: [...completed, lessonId]
+        });
+    }
+    // Navigate back to course menu after a brief delay or let user choose? 
+    // For better UX, we just mark it complete and let them stay or go back.
+    setSelectedLesson(null); // Return to course list to show progress
+  };
+
+  // LESSON VIEW
+  if (selectedLesson && selectedCourse) {
+    const isCompleted = (userSettings.completedLessons || []).includes(selectedLesson.id);
+
+    return (
+        <div className="bg-white h-full pb-24 overflow-y-auto animate-fade-in">
+           <div className="bg-purple-600 text-white p-6 sticky top-0 z-20">
+               <button 
+                onClick={() => setSelectedLesson(null)}
+                className="flex items-center text-purple-100 hover:text-white mb-4"
+               >
+                   <ArrowLeft size={20} className="mr-2" />
+                   <span className="text-sm font-bold">Back to Course</span>
+               </button>
+               <h1 className="text-xl font-bold leading-tight">{selectedLesson.title}</h1>
+               <div className="flex items-center text-xs text-purple-200 mt-2">
+                   <Clock size={12} className="mr-1" />
+                   <span>{selectedLesson.duration}</span>
+                   {isCompleted && (
+                       <span className="ml-3 bg-green-500/20 text-green-100 text-[10px] font-bold px-2 py-0.5 rounded flex items-center">
+                           <Check size={10} className="mr-1" /> Completed
+                       </span>
+                   )}
+               </div>
+           </div>
+           
+           <div className="p-6">
+                <div className="prose prose-purple max-w-none text-gray-700 leading-relaxed">
+                    {selectedLesson.content.split('\n').map((paragraph, index) => (
+                        paragraph.trim() && (
+                            <p key={index} className="mb-4 text-base">
+                                {paragraph.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').split(/(<strong>.*?<\/strong>)/).map((part, i) => 
+                                    part.startsWith('<strong>') ? <strong key={i}>{part.replace(/<\/?strong>/g, '')}</strong> : part
+                                )}
+                            </p>
+                        )
+                    ))}
+                </div>
+                
+                <div className="mt-8">
+                    <button 
+                        onClick={() => handleCompleteLesson(selectedLesson.id)} 
+                        disabled={isCompleted}
+                        className={`w-full py-3 rounded-xl font-bold transition-all ${
+                            isCompleted 
+                            ? 'bg-green-100 text-green-700 cursor-default'
+                            : 'bg-purple-600 text-white hover:bg-purple-700 shadow-md shadow-purple-200'
+                        }`}
+                    >
+                        {isCompleted ? (
+                            <span className="flex items-center justify-center">
+                                <Check size={18} className="mr-2" /> Lesson Completed
+                            </span>
+                        ) : 'Mark as Complete'}
+                    </button>
+                </div>
+           </div>
+        </div>
+    );
+  }
+
+  // COURSE OVERVIEW
+  if (selectedCourse) {
+      const completedCount = selectedCourse.lessons.filter(l => (userSettings.completedLessons || []).includes(l.id)).length;
+      const totalLessons = selectedCourse.lessons.length;
+      const progress = Math.round((completedCount / totalLessons) * 100);
+
+      return (
+          <div className="bg-white h-full pb-24 overflow-y-auto animate-fade-in">
+              <div className="relative h-64">
+                  <img src={selectedCourse.imageUrl} className="w-full h-full object-cover" alt={selectedCourse.title} />
+                  <div className="absolute top-4 left-4">
+                      <button 
+                          onClick={() => setSelectedCourse(null)}
+                          className="bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-md text-gray-800 hover:bg-white transition-colors"
+                      >
+                          <ArrowLeft size={24} />
+                      </button>
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent pointer-events-none"></div>
+                  <div className="absolute bottom-6 left-6 right-6 text-white">
+                      <span className="inline-block bg-teal-500 text-xs font-bold px-2 py-1 rounded mb-2 uppercase tracking-wide">
+                          Course
+                      </span>
+                      <h1 className="text-3xl font-bold leading-tight mb-2">{selectedCourse.title}</h1>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center text-xs font-medium text-white/80">
+                            <span>By {selectedCourse.author}</span>
+                        </div>
+                        <span className="text-xs font-bold bg-black/30 px-2 py-1 rounded border border-white/20">
+                            {progress}% Complete
+                        </span>
+                      </div>
+                  </div>
+              </div>
+              
+              <div className="p-6">
+                  <h3 className="font-bold text-lg text-gray-800 mb-4">Course Curriculum</h3>
+                  <div className="space-y-4">
+                      {selectedCourse.lessons.map((lesson, index) => {
+                          const isCompleted = (userSettings.completedLessons || []).includes(lesson.id);
+                          return (
+                            <div 
+                                key={lesson.id}
+                                onClick={() => setSelectedLesson(lesson)} 
+                                className={`flex items-center p-4 rounded-2xl border transition-all cursor-pointer group ${
+                                    isCompleted 
+                                    ? 'bg-green-50 border-green-100' 
+                                    : 'bg-gray-50 border-gray-100 hover:bg-purple-50 hover:border-purple-100'
+                                }`}
+                            >
+                                <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center font-bold border transition-colors ${
+                                    isCompleted
+                                    ? 'bg-green-500 text-white border-green-500'
+                                    : 'bg-white text-gray-400 border-gray-200 group-hover:bg-purple-600 group-hover:text-white group-hover:border-purple-600'
+                                }`}>
+                                    {isCompleted ? <Check size={18} /> : index + 1}
+                                </div>
+                                <div className="ml-4 flex-1">
+                                    <h4 className={`font-bold group-hover:text-purple-700 ${isCompleted ? 'text-gray-600' : 'text-gray-800'}`}>
+                                        {lesson.title}
+                                    </h4>
+                                    <div className="flex items-center text-xs text-gray-400 mt-1">
+                                        <PlayCircle size={12} className="mr-1" />
+                                        <span>{lesson.duration}</span>
+                                    </div>
+                                </div>
+                                <div className="text-gray-300 group-hover:text-purple-400">
+                                    <ChevronRight size={20} />
+                                </div>
+                            </div>
+                          );
+                      })}
+                  </div>
+              </div>
+          </div>
+      );
+  }
+
+  // ARTICLE DETAIL VIEW
   if (selectedArticle) {
     return (
       <div className="bg-white h-full pb-24 overflow-y-auto animate-fade-in">
@@ -172,14 +326,20 @@ const Insights: React.FC<InsightsProps> = ({ userSettings }) => {
         </div>
 
         {/* Featured Course */}
-        <div className="relative h-64 rounded-2xl overflow-hidden shadow-md group cursor-pointer transition-transform hover:scale-[1.01]">
-            <img src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&h=600&q=80" className="absolute inset-0 w-full h-full object-cover" alt="Yoga" />
+        <div 
+            onClick={() => setSelectedCourse(MASTERING_CYCLE_COURSE)}
+            className="relative h-64 rounded-2xl overflow-hidden shadow-md group cursor-pointer transition-transform hover:scale-[1.01]"
+        >
+            <img src={MASTERING_CYCLE_COURSE.imageUrl} className="absolute inset-0 w-full h-full object-cover" alt="Yoga" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-6">
                 <span className="text-white text-xs font-bold uppercase tracking-wider mb-2 bg-rose-500 w-fit px-2 py-1 rounded">Course</span>
-                <h2 className="text-white text-2xl font-bold mb-1">Mastering your Cycle</h2>
+                <h2 className="text-white text-2xl font-bold mb-1">{MASTERING_CYCLE_COURSE.title}</h2>
                 <div className="flex items-center text-white/90 text-sm space-x-2">
                     <PlayCircle size={16} />
-                    <span>5 Lessons • 25 min</span>
+                    <span>
+                        {MASTERING_CYCLE_COURSE.lessons.length} Lessons • 
+                        {userSettings.completedLessons && userSettings.completedLessons.length > 0 ? ` ${Math.round((userSettings.completedLessons.length / MASTERING_CYCLE_COURSE.lessons.length) * 100)}% Done` : ' 50 min'}
+                    </span>
                 </div>
             </div>
         </div>

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Home from './pages/Home';
 import Partners from './pages/Partners';
@@ -13,6 +14,7 @@ const DEFAULT_USER: UserSettings = {
   cycleLength: 28,
   periodLength: 5,
   lastPeriodStart: new Date(Date.now() - 22 * 24 * 60 * 60 * 1000).toISOString(), // 22 days ago
+  completedLessons: []
 };
 
 const App: React.FC = () => {
@@ -39,6 +41,12 @@ const App: React.FC = () => {
     initData();
   }, []);
 
+  const handleUpdateSettings = async (newSettings: Partial<UserSettings>) => {
+    const updated = { ...userSettings, ...newSettings };
+    setUserSettings(updated);
+    await saveUserSettings(updated);
+  };
+
   const renderPage = () => {
     switch (currentRoute) {
       case AppRoute.HOME:
@@ -46,7 +54,7 @@ const App: React.FC = () => {
       case AppRoute.PARTNERS:
         return <Partners userSettings={userSettings} />;
       case AppRoute.INSIGHTS:
-        return <Insights userSettings={userSettings} />;
+        return <Insights userSettings={userSettings} onUpdateSettings={handleUpdateSettings} />;
       case AppRoute.CALENDAR:
         return <CalendarPage userSettings={userSettings} />;
       case AppRoute.PROFILE:

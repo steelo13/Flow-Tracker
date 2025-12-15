@@ -1,5 +1,5 @@
 
-import { Symptom, InsightArticle } from './types';
+import { Symptom, InsightArticle, Course } from './types';
 
 export const THEME_COLORS = {
   primary: '#ff5c8d', // Flo Pink
@@ -23,6 +23,227 @@ export const MOCK_SYMPTOMS: Symptom[] = [
   { id: 'egg_white', name: 'Egg white', icon: 'droplet', category: 'discharge' },
   { id: 'sticky', name: 'Sticky', icon: 'cloud', category: 'discharge' },
 ];
+
+export const MASTERING_CYCLE_COURSE: Course = {
+  id: 'course_1',
+  title: 'Mastering your Cycle',
+  description: 'A comprehensive guide to understanding the 4 phases of your menstrual cycle and how to harness them for better health, productivity, and happiness.',
+  author: 'Dr. Elena Rosetti, MD & The FlowTracker Team',
+  imageUrl: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&h=600&q=80',
+  lessons: [
+    {
+      id: 'lesson_1',
+      title: 'The Biology of the Four Seasons',
+      duration: '10 min',
+      content: `Welcome to Lesson 1 of Mastering Your Cycle. To truly harness the power of your menstrual cycle, you must first understand the biological symphony playing out inside your body every single month.
+
+The menstrual cycle is often misunderstood as just "the period" and "the rest of the month." In reality, it is a continuous loop of hormonal fluctuations that can be divided into four distinct phases. Many experts compare these phases to the four seasons of nature: Winter, Spring, Summer, and Autumn.
+
+**1. Menstruation (Winter)**
+*   **What happens:** This is Day 1 of your cycle. Progesterone and estrogen levels drop dramatically, signaling the uterus to shed its lining.
+*   **How you feel:** Energy is typically at its lowest. You may feel inward, reflective, and physically tired. This is your biological winter—a time for hibernation and rest.
+*   **Key Insight:** This low-hormone state is actually a "clean slate." The communication between your brain and ovaries is resetting. It is the best time for intuitive thinking and evaluating what is working in your life and what isn't.
+
+**2. The Follicular Phase (Spring)**
+*   **What happens:** Once bleeding stops, the pituitary gland releases Follicle Stimulating Hormone (FSH). This stimulates the ovaries to produce follicles, each containing an egg. As these follicles grow, they release estrogen.
+*   **How you feel:** Estrogen is your "get up and go" hormone. Like spring, energy begins to rise. You may feel more creative, curious, and social. Your skin clears up, and your brain fog lifts.
+*   **Key Insight:** This is a time of renewal. Your brain is primed for learning new skills and tackling complex problems.
+
+**3. Ovulation (Summer)**
+*   **What happens:** Estrogen peaks, triggering a surge in Luteinizing Hormone (LH), which causes the release of the mature egg. Testosterone also spikes briefly.
+*   **How you feel:** You are at your biological peak. High estrogen and testosterone make you feel confident, verbal, and magnetic. Libido is often highest here.
+*   **Key Insight:** This is your time to shine. It is the best window for public speaking, first dates, important meetings, or asking for a raise. You are naturally more persuasive and resilient to stress.
+
+**4. The Luteal Phase (Autumn)**
+*   **What happens:** The empty follicle transforms into the corpus luteum and begins pumping out progesterone. Estrogen drops initially, then rises slightly, but progesterone is the dominant hormone.
+*   **How you feel:** Progesterone has a sedating, calming effect (like a natural valium), but if levels are too low or not balanced with estrogen, it leads to PMS. Energy turns inward. You become more detail-oriented but potentially more irritable.
+*   **Key Insight:** This is the "harvest" phase. It is excellent for finishing tasks, organizing, and deep work. However, as you approach menstruation, your physical energy will wane, requiring you to slow down.
+
+**Conclusion**
+Your body is not designed to be the same every day. By recognizing these inner seasons, you stop fighting your physiology and start flowing with it. In the next lesson, we will explore how to fuel these phases specifically.`
+    },
+    {
+      id: 'lesson_2',
+      title: 'Cycle Syncing Your Nutrition',
+      duration: '12 min',
+      content: `In Lesson 1, we learned about the hormonal shifts of the four phases. In Lesson 2, we explore "Cycle Syncing" your diet—eating specific nutrients to support those hormonal changes. Food is not just fuel; it is information for your cells.
+
+**Phase 1: Menstruation (Replenish)**
+During your period, your body is engaged in an intense inflammatory process to shed the uterine lining. You are also losing iron and zinc through blood loss.
+*   **Goal:** Remineralize and reduce inflammation.
+*   **What to eat:**
+    *   **Iron-Rich Foods:** Red meat, lentils, kidney beans, spinach, and dark chocolate.
+    *   **Vitamin C:** Oranges, bell peppers, and strawberries (Vitamin C helps absorb iron).
+    *   **Warming Foods:** Soups, stews, and bone broth. In Traditional Chinese Medicine, cold foods are discouraged during menstruation as they serve to "stagnate" flow and increase cramping.
+    *   **Healthy Fats:** Avocado and olive oil to stabilize mood.
+
+**Phase 2: Follicular (Fresh & Light)**
+As estrogen rises, your digestion improves, and your metabolism slows down slightly compared to the luteal phase. You can handle fresh, raw foods well.
+*   **Goal:** Support rising energy and gut health.
+*   **What to eat:**
+    *   **Fermented Foods:** Kimchi, sauerkraut, and yogurt. A healthy gut is crucial for metabolizing estrogen properly so it doesn't build up (estrogen dominance).
+    *   **Fresh Salads:** Arugula, romaine, and mixed greens.
+    *   **Lean Proteins:** Chicken, eggs, and white fish.
+    *   **Seeds:** Flax seeds and pumpkin seeds (Phase 1 of Seed Cycling) help boost estrogen production naturally.
+
+**Phase 3: Ovulation (Fiber & Anti-Inflammatory)**
+Estrogen is at its all-time high. The liver needs support to flush out excess estrogen once it has done its job.
+*   **Goal:** Liver support and sustained energy.
+*   **What to eat:**
+    *   **Cruciferous Vegetables:** Broccoli, cauliflower, kale, and Brussels sprouts contain DIM, a compound that helps the liver process estrogen efficiently.
+    *   **Antioxidants:** Berries, turmeric, and dark leafy greens.
+    *   **Hydration:** Water needs increase during this high-energy phase.
+
+**Phase 4: Luteal (Complex Carbs & Magnesium)**
+Progesterone raises your basal metabolic rate—you actually burn about 100-300 more calories per day at rest! This is why you feel hungry. However, blood sugar becomes more unstable, leading to cravings.
+*   **Goal:** Stabilize blood sugar and reduce PMS.
+*   **What to eat:**
+    *   **Slow-Burning Carbs:** Sweet potatoes, brown rice, oats, and squash. These prevent the sugar crashes that trigger mood swings.
+    *   **Magnesium:** Dark chocolate, pumpkin seeds, and leafy greens. Magnesium is the miracle mineral for cramps and anxiety.
+    *   **B Vitamins:** Chickpeas, bananas, and salmon. Vitamin B6 specifically helps produce progesterone and serotonin.
+    *   **Seeds:** Sesame and sunflower seeds (Phase 2 of Seed Cycling) support progesterone production.
+
+**The Golden Rule**
+If you only change one thing: **Eat Breakfast.** Skipping breakfast stresses the adrenals, which steals resources from your reproductive hormones. A high-protein breakfast within an hour of waking is the single best thing you can do for hormone balance, regardless of the phase.`
+    },
+    {
+      id: 'lesson_3',
+      title: 'Training with your Flow',
+      duration: '10 min',
+      content: `The "no pain, no gain" mentality dominates the fitness world, but for women, pushing for a Personal Best (PB) every day of the month can actually be counterproductive. Your capacity for intensity, recovery, and strength fluctuates. Lesson 3 is about training smarter, not harder.
+
+**The Follicular Phase & Ovulation: Go Hard**
+During the first half of your cycle (after your period ends), estrogen is rising.
+*   **Physiology:** Estrogen has an anabolic (muscle-building) effect. Your pain tolerance is higher, your recovery time is faster, and your body is more efficient at using glycogen (carbs) for quick bursts of energy.
+*   **Best Workouts:**
+    *   High-Intensity Interval Training (HIIT)
+    *   Heavy Weightlifting
+    *   Sprinting / Boxing
+    *   Complex Plyometrics
+*   **The Ovulation Warning:** While you are strongest during ovulation, high estrogen can also make your ligaments slightly looser (laxity). Studies show ACL tears are more common during ovulation. Be mindful of form and stability during high-impact moves.
+
+**The Luteal Phase: Endurance & Form**
+Once ovulation passes and progesterone takes over, the body changes gears.
+*   **Physiology:** Your body temperature rises. You might find you sweat sooner and heart rate climbs faster. Progesterone is catabolic (muscle-breaking) in high stress, and your body prefers to burn fat for fuel rather than glycogen.
+*   **The Shift:** In the *early* luteal phase, you can still lift weights, but aim for lower weight and higher reps (hypertrophy) rather than max strength.
+*   **The Late Luteal Phase:** As you approach your period (the PMS window), high-intensity cardio stresses the body significantly, increasing cortisol. Excess cortisol can "steal" from progesterone, making PMS symptoms worse.
+*   **Best Workouts:**
+    *   Steady State Cardio (LISS) - Jogging, Hiking, Cycling
+    *   Pilates & Barre
+    *   Yoga (Vinyasa or Hatha)
+    *   Mobility work
+
+**Menstruation: Active Recovery**
+When hormones are at rock bottom, your inflammatory markers are high.
+*   **Physiology:** Your immune system is slightly compromised, and your energy reserves are focused on the uterine process.
+*   **Best Workouts:**
+    *   Walking
+    *   Yin Yoga or Restorative Yoga
+    *   Stretching
+    *   Nap!
+*   **Myth Buster:** "You shouldn't workout on your period." False. Movement can help cramps by releasing endorphins. However, the goal should be *relief*, not *performance*. If you are exhausted, rest is the most productive workout you can do.
+
+**Listening to Your Body**
+These are guidelines, not laws. If you feel energetic on Day 2 of your period, go for a run. If you feel exhausted during ovulation, rest. The goal of cycle-synced fitness is sustainability. By pulling back during the luteal phase, you reserve the energy to crush your goals in the follicular phase, preventing the burnout cycle that leads many to quit their fitness routines entirely.`
+    },
+    {
+      id: 'lesson_4',
+      title: 'Productivity & Work',
+      duration: '12 min',
+      content: `We live in a world designed around a 24-hour cycle (the circadian rhythm), which matches male hormonal patterns (testosterone resets every morning). Women, however, operate on an infradian rhythm—a 28-day cycle. Lesson 4 is about hacking your schedule to match your brain chemistry.
+
+**Follicular Phase: The Planner & Dreamer**
+*   **Brain State:** As estrogen rises, you become more open to new ideas. Structural connectivity in the brain actually improves, making you better at complex problem solving and creative thinking.
+*   **Work Focus:**
+    *   Brainstorming sessions.
+    *   Starting new projects.
+    *   Strategy planning.
+    *   Learning new software or skills.
+    *   Networking events.
+
+**Ovulation: The Communicator**
+*   **Brain State:** With peak estrogen and testosterone, the verbal centers of your brain are lit up. You are more articulate, persuasive, and socially resilient. You interpret facial expressions and tone of voice better than at any other time.
+*   **Work Focus:**
+    *   Pitching investors or clients.
+    *   Asking for a raise or promotion.
+    *   Recording videos or podcasts.
+    *   Difficult conversations or negotiations.
+    *   Team collaboration.
+
+**Luteal Phase: The Editor & Doer**
+*   **Brain State:** Progesterone brings a desire for completion and order. Your brain becomes more detail-oriented. You are less interested in "big picture" dreaming and more interested in "how do we get this done?"
+*   **Work Focus:**
+    *   Deep work (solo focus).
+    *   Administrative tasks and accounting.
+    *   Editing, proofreading, and refining.
+    *   Organizing files and clearing the inbox.
+    *   Wrapping up projects.
+
+**Menstruation: The Reviewer**
+*   **Brain State:** The left and right hemispheres of the brain communicate most strongly now. Your intuition is heightened. You have a "BS detector" that helps you see what is essential and what is noise.
+*   **Work Focus:**
+    *   Reviewing monthly analytics/results.
+    *   Journaling on career goals.
+    *   Resting and recharging creative batteries.
+    *   Setting intentions for the next cycle.
+
+**Practical Application**
+We can't always control our work deadlines. If you have a big presentation during your period:
+1.  **Prepare early:** Do the heavy lifting during your luteal phase.
+2.  **Schedule recovery:** Plan for a slower morning or an early night after the event.
+3.  **Batch tasks:** If you have autonomy, try to group all your meetings into your ovulation week and your admin work into your luteal week.
+
+By aligning your tasks with your natural strengths, you reduce friction. Work feels less like pushing a boulder uphill and more like riding a wave.`
+    },
+    {
+      id: 'lesson_5',
+      title: 'Emotional Health & Self-Care',
+      duration: '11 min',
+      content: `We end our course with perhaps the most important lesson: Emotional Health. Society often labels women "hormonal" or "moody" in a derogatory way. In reality, your emotions during your cycle are data points, telling you what you need.
+
+**The Truth About PMS**
+Premenstrual Syndrome (PMS) is common, but severe PMS is not "normal"—it is a sign of imbalance. It often results from:
+1.  **Estrogen Dominance:** Too much estrogen relative to progesterone (often due to stress or gut issues).
+2.  **Nutrient Deficiency:** Lack of magnesium, B6, or healthy fats.
+3.  **Lifestyle Friction:** Pushing yourself too hard when your body wants to rest.
+If you experience PMDD (Premenstrual Dysphoric Disorder), where mood shifts severely impact your life, this requires medical support, but lifestyle changes are a crucial part of the treatment plan.
+
+**The "Veil Thins"**
+During the follicular and ovulation phases, we have high resilience. We can brush off an annoying comment from a coworker or ignore a messy kitchen.
+During the luteal phase, our resilience drops. The "veil" lifts. The things that annoy you during your pre-menstrual week are often *valid* annoyances that you tolerate the rest of the month.
+*   **Action:** Instead of suppressing these feelings or exploding, write them down. Revisit them in your follicular phase. If they still bother you, address them then.
+
+**Cycle-Synced Self-Care**
+
+*   **Follicular Care:**
+    *   Try new things: A new hobby, a new walking route.
+    *   Socialize: Say yes to dinner invites.
+    *   Mantra: "I am open to possibility."
+
+*   **Ovulation Care:**
+    *   Connection: Intimacy with partners or bonding with friends.
+    *   Expression: Wear your favorite outfit, put on makeup (if you like it).
+    *   Mantra: "I am visible and powerful."
+
+*   **Luteal Care:**
+    *   Boundaries: Start saying "no" to non-essential plans.
+    *   Comfort: Warm baths, massage, reading fiction.
+    *   Organization: Cleaning your space (nesting) reduces anxiety.
+    *   Mantra: "I honor my need for space."
+
+*   **Menstrual Care:**
+    *   Solitude: Time alone is essential.
+    *   Physical Comfort: Loose clothing, heating pads, naps.
+    *   Release: A good cry is chemically healing—tears release cortisol.
+    *   Mantra: "It is safe to rest."
+
+**Your New Superpower**
+Tracking your cycle isn't just about predicting your period. It is a practice of self-awareness. When you know you are in your luteal phase, you don't judge yourself for being tired; you parent yourself. You say, "Of course I'm tired, I'm making high-octane hormones. Tonight we rest."
+
+Congratulations on completing Mastering Your Cycle. You now have the tools to turn your cycle from a monthly burden into your greatest strategic advantage.`
+    }
+  ]
+};
 
 export const INSIGHTS: InsightArticle[] = [
   {

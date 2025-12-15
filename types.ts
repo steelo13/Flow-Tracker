@@ -6,6 +6,7 @@ export interface UserSettings {
   periodLength: number; // Average period length (e.g., 5)
   lastPeriodStart: string; // ISO Date string
   name: string;
+  completedLessons?: string[]; // IDs of completed lessons
 }
 
 export interface Symptom {
@@ -30,6 +31,22 @@ export interface InsightArticle {
   imageUrl: string;
   readTime: string;
   content: string;
+}
+
+export interface Lesson {
+  id: string;
+  title: string;
+  duration: string;
+  content: string;
+}
+
+export interface Course {
+  id: string;
+  title: string;
+  description: string;
+  author: string;
+  imageUrl: string;
+  lessons: Lesson[];
 }
 
 export enum AppRoute {
