@@ -57,3 +57,19 @@ export const logDailySymptoms = async (date: string, symptoms: string[]): Promis
     console.error("Failed to log symptoms:", error);
   }
 };
+
+export const getDailyLog = async (date: string): Promise<DailyLog | null> => {
+  if (!db) return null;
+  try {
+    const logId = date.split('T')[0];
+    const logRef = doc(db, 'users', USER_ID, 'logs', logId);
+    const docSnap = await getDoc(logRef);
+    if (docSnap.exists()) {
+      return docSnap.data() as DailyLog;
+    }
+    return null;
+  } catch (error) {
+    console.error("Error fetching log:", error);
+    return null;
+  }
+};

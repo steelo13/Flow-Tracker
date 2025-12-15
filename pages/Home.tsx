@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import CircularTracker from '../components/CircularTracker';
 import DailyInsights from '../components/DailyInsights';
 import SymptomLogger from '../components/SymptomLogger';
-import { UserSettings } from '../types';
+import { UserSettings, DailyLog } from '../types';
 import { calculateDaysUntilPeriod, getCycleDay, getCalendarDayStatus } from '../services/cycleService';
-import { logDailySymptoms } from '../services/db';
-import { Calendar as CalendarIcon, ChevronRight } from 'lucide-react';
+import { logDailySymptoms, getDailyLog } from '../services/db';
+import { Calendar as CalendarIcon } from 'lucide-react';
 
 interface HomeProps {
   userSettings: UserSettings;
@@ -14,18 +14,44 @@ interface HomeProps {
 const Home: React.FC<HomeProps> = ({ userSettings }) => {
   const [isLoggerOpen, setIsLoggerOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [dailyLog, setDailyLog] = useState<DailyLog | null>(null);
 
   // Pass selectedDate to recalculate the main wheel based on user selection
   const daysUntil = calculateDaysUntilPeriod(userSettings, selectedDate);
   const cycleDay = getCycleDay(userSettings, selectedDate);
   
+  // Fetch daily log when date changes
+  useEffect(() => {
+    let isMounted = true;
+    const fetchLog = async () => {
+        const log = await getDailyLog(selectedDate.toISOString());
+        if (isMounted) {
+            setDailyLog(log);
+        }
+    };
+    fetchLog();
+    return () => { isMounted = false; };
+  }, [selectedDate]);
+
   const handleSaveSymptoms = async (symptoms: string[]) => {
     // Use the selected date for logging instead of always 'now'
     const dateToLog = selectedDate.toISOString();
     await logDailySymptoms(dateToLog, symptoms);
+    
+    // Optimistic update
+    setDailyLog({
+        date: dateToLog,
+        symptoms: symptoms
+    });
     console.log(`Symptoms saved to database for ${dateToLog}:`, symptoms);
   };
   
+  // Calculate pregnancy chance for insights
+  const status = getCalendarDayStatus(selectedDate, userSettings);
+  let pregnancyChance: 'Low' | 'Medium' | 'High' = 'Low';
+  if (status === 'ovulation') pregnancyChance = 'High';
+  else if (status === 'fertile') pregnancyChance = 'Medium';
+
   // Generate dates for the calendar strip (center around today to keep the strip stable)
   // We'll show a 1 week window: 3 days before, 3 days after to ensure unique weekdays
   const dates = Array.from({ length: 7 }, (_, i) => {
@@ -110,7 +136,12 @@ const Home: React.FC<HomeProps> = ({ userSettings }) => {
       />
 
       {/* Insights Section */}
-      <DailyInsights />
+      <DailyInsights 
+        date={selectedDate}
+        dailyLog={dailyLog}
+        pregnancyChance={pregnancyChance}
+        onLogClick={() => setIsLoggerOpen(true)}
+      />
 
       {/* Promo Banner */}
       <div className="px-4 mb-6">
