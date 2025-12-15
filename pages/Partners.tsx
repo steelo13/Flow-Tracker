@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { UserSettings, DailyLog } from '../types';
-import { Heart, MessageCircle, CheckCircle, Sparkles, Loader } from 'lucide-react';
+import { Heart, MessageCircle, CheckCircle, Sparkles, Loader, Camera } from 'lucide-react';
 import { getCycleDay, getCyclePhase } from '../services/cycleService';
 import { getDailyLog } from '../services/db';
 import { GoogleGenAI } from "@google/genai";
@@ -14,6 +14,12 @@ const Partners: React.FC<PartnersProps> = ({ userSettings }) => {
   const [phase, setPhase] = useState<string>('');
   const [dailyLog, setDailyLog] = useState<DailyLog | null>(null);
   
+  // Photo State
+  const [herPhoto, setHerPhoto] = useState<string>("https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=150&h=150&q=80");
+  const [hisPhoto, setHisPhoto] = useState<string>("https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&h=150&q=80");
+  const herInputRef = useRef<HTMLInputElement>(null);
+  const hisInputRef = useRef<HTMLInputElement>(null);
+  
   // AI State
   const [aiTip, setAiTip] = useState<string>("Loading personalized starter...");
   const [isAiLoading, setIsAiLoading] = useState(true);
@@ -22,6 +28,12 @@ const Partners: React.FC<PartnersProps> = ({ userSettings }) => {
   const [checklist, setChecklist] = useState<{id: number, text: string, done: boolean}[]>([]);
 
   useEffect(() => {
+    // 0. Load Photos
+    const storedHer = localStorage.getItem('partner_her_photo');
+    if (storedHer) setHerPhoto(storedHer);
+    const storedHis = localStorage.getItem('partner_his_photo');
+    if (storedHis) setHisPhoto(storedHis);
+
     // 1. Calculate Cycle Data
     const today = new Date();
     const day = getCycleDay(userSettings, today);
@@ -120,6 +132,24 @@ const Partners: React.FC<PartnersProps> = ({ userSettings }) => {
     ));
   };
 
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'her' | 'his') => {
+    const file = e.target.files?.[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const result = reader.result as string;
+            if (type === 'her') {
+                setHerPhoto(result);
+                localStorage.setItem('partner_her_photo', result);
+            } else {
+                setHisPhoto(result);
+                localStorage.setItem('partner_his_photo', result);
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+  };
+
   const getPhaseLabel = (p: string) => {
       if (p === 'menstruation') return 'Period';
       return p.charAt(0).toUpperCase() + p.slice(1);
@@ -149,13 +179,28 @@ const Partners: React.FC<PartnersProps> = ({ userSettings }) => {
              </div>
              
              <div className="flex space-x-4">
+                {/* Her Section */}
                 <div className="flex-1 flex flex-col items-center">
-                   <div className="relative">
+                   <div 
+                        className="relative group cursor-pointer" 
+                        onClick={() => herInputRef.current?.click()}
+                        title="Change photo"
+                    >
+                       <input 
+                            type="file" 
+                            ref={herInputRef} 
+                            className="hidden" 
+                            accept="image/*"
+                            onChange={(e) => handlePhotoUpload(e, 'her')}
+                       />
                        <img 
-                         src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=150&h=150&q=80" 
-                         className="w-16 h-16 rounded-full border-4 border-rose-100 mb-2 object-cover" 
+                         src={herPhoto} 
+                         className="w-16 h-16 rounded-full border-4 border-rose-100 mb-2 object-cover transition-opacity group-hover:opacity-80" 
                          alt="Her" 
                        />
+                       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                           <Camera size={20} className="text-gray-600 bg-white/90 p-1 rounded-full shadow-sm" />
+                       </div>
                        <div className="absolute bottom-2 right-0 bg-rose-500 w-4 h-4 rounded-full border-2 border-white"></div>
                    </div>
                    <p className="text-center font-bold text-gray-800">Her Day</p>
@@ -175,12 +220,29 @@ const Partners: React.FC<PartnersProps> = ({ userSettings }) => {
                    <div className="w-px h-24 bg-gray-200"></div>
                 </div>
 
+                {/* Him Section */}
                 <div className="flex-1 flex flex-col items-center">
-                   <img 
-                     src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&h=150&q=80" 
-                     className="w-16 h-16 rounded-full border-4 border-blue-100 mb-2 object-cover" 
-                     alt="Him" 
-                   />
+                   <div 
+                        className="relative group cursor-pointer" 
+                        onClick={() => hisInputRef.current?.click()}
+                        title="Change photo"
+                    >
+                       <input 
+                            type="file" 
+                            ref={hisInputRef} 
+                            className="hidden" 
+                            accept="image/*"
+                            onChange={(e) => handlePhotoUpload(e, 'his')}
+                       />
+                       <img 
+                         src={hisPhoto} 
+                         className="w-16 h-16 rounded-full border-4 border-blue-100 mb-2 object-cover transition-opacity group-hover:opacity-80" 
+                         alt="Him" 
+                       />
+                       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                           <Camera size={20} className="text-gray-600 bg-white/90 p-1 rounded-full shadow-sm" />
+                       </div>
+                   </div>
                    <p className="text-center font-bold text-gray-800">His Role</p>
                    <p className="text-center text-xs text-gray-500">Supportive</p>
                    <div className="mt-2 text-center">
@@ -217,7 +279,7 @@ const Partners: React.FC<PartnersProps> = ({ userSettings }) => {
          </div>
        </div>
 
-       {/* Partner's Action Plan (Replacement for Video) */}
+       {/* Partner's Action Plan */}
        <div className="px-4">
          <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between mb-4">
