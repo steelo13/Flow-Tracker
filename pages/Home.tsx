@@ -16,6 +16,7 @@ const Home: React.FC<HomeProps> = ({ userSettings }) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [dailyLog, setDailyLog] = useState<DailyLog | null>(null);
   const [waterCups, setWaterCups] = useState(4); // Default/Mock state for water
+  const [sleepDuration, setSleepDuration] = useState(7.5); // Default 7.5 hours
 
   // Pass selectedDate to recalculate the main wheel based on user selection
   const daysUntil = calculateDaysUntilPeriod(userSettings, selectedDate);
@@ -184,13 +185,31 @@ const Home: React.FC<HomeProps> = ({ userSettings }) => {
                     <Moon className="text-indigo-500" size={14} fill="currentColor" />
                 </div>
             </div>
-            <div className="z-10 mt-2">
-                <span className="text-2xl font-bold text-indigo-900">7<span className="text-sm text-indigo-400">h</span> 30<span className="text-sm text-indigo-400">m</span></span>
-                <div className="w-full bg-indigo-200 h-1.5 rounded-full mt-2 overflow-hidden">
-                    <div className="bg-indigo-500 w-[85%] h-full rounded-full"></div>
+            <div className="flex items-center justify-between mt-2 z-10">
+                <button 
+                    onClick={() => setSleepDuration(Math.max(0, sleepDuration - 0.5))}
+                    className="w-8 h-8 rounded-full bg-white text-indigo-600 font-bold shadow-sm flex items-center justify-center active:scale-95 transition-transform"
+                >
+                    <Minus size={16} />
+                </button>
+                <div className="text-center">
+                   <span className="text-xl font-bold text-indigo-900">
+                     {Math.floor(sleepDuration)}<span className="text-xs text-indigo-400">h</span> {(sleepDuration % 1 === 0 ? 0 : 30)}<span className="text-xs text-indigo-400">m</span>
+                   </span>
                 </div>
+                <button 
+                    onClick={() => setSleepDuration(sleepDuration + 0.5)}
+                    className="w-8 h-8 rounded-full bg-indigo-500 text-white font-bold shadow-sm flex items-center justify-center active:scale-95 transition-transform"
+                >
+                    <Plus size={16} />
+                </button>
             </div>
-            <span className="text-[10px] text-indigo-400 font-medium mt-1 z-10">Target: 8h</span>
+            <div className="z-10 mt-2">
+                 <div className="w-full bg-indigo-200 h-1.5 rounded-full overflow-hidden">
+                    <div className="bg-indigo-500 h-full rounded-full transition-all duration-300" style={{ width: `${Math.min((sleepDuration / 8) * 100, 100)}%` }}></div>
+                </div>
+                <span className="text-[10px] text-indigo-400 font-medium mt-1 block text-right">Target: 8h</span>
+            </div>
             
             {/* Decorative */}
             <Moon className="absolute -bottom-4 -right-4 text-indigo-100 opacity-50" size={80} />
