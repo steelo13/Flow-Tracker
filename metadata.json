@@ -1,0 +1,5 @@
+{
+  "name": "FlowTracker",
+  "description": "A comprehensive cycle, ovulation, and pregnancy tracker backed by medical insights. Features symptom logging, partner sharing, and cycle predictions.",
+  "requestFramePermissions": []
+}
