@@ -1,7 +1,7 @@
 
 import React, { useState, useRef } from 'react';
 import { UserSettings } from '../types';
-import { Camera, Settings, Bell, ChevronRight, Moon, LogOut, FileText, User, Shield, Activity, Calendar } from 'lucide-react';
+import { Camera, Activity, ChevronRight, LogOut, FileText, Shield, Baby, Moon, Droplet, Minus, Plus } from 'lucide-react';
 
 interface ProfileProps {
   userSettings: UserSettings;
@@ -18,12 +18,6 @@ const Profile: React.FC<ProfileProps> = ({ userSettings, onUpdateSettings }) => 
     cycleLength: userSettings.cycleLength,
     periodLength: userSettings.periodLength,
   });
-
-  const reminders = userSettings.reminders || {
-    periodStart: true,
-    fertileWindow: true,
-    logSymptoms: false
-  };
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -42,10 +36,14 @@ const Profile: React.FC<ProfileProps> = ({ userSettings, onUpdateSettings }) => 
     setIsEditing(false);
   };
 
-  const toggleReminder = (key: keyof typeof reminders) => {
-    onUpdateSettings({
-      reminders: { ...reminders, [key]: !reminders[key] }
-    });
+  const togglePregnancyMode = () => {
+    onUpdateSettings({ pregnancyMode: !userSettings.pregnancyMode });
+  };
+
+  const updateGoal = (field: 'waterGoal' | 'sleepGoal', delta: number) => {
+    const current = userSettings[field] || (field === 'waterGoal' ? 8 : 8);
+    const newValue = Math.max(0, current + delta);
+    onUpdateSettings({ [field]: newValue });
   };
 
   return (
@@ -130,39 +128,74 @@ const Profile: React.FC<ProfileProps> = ({ userSettings, onUpdateSettings }) => 
       {/* Settings Sections */}
       <div className="px-4 space-y-6">
         
-        {/* Reminders */}
+        {/* Pregnancy Mode */}
+        <div className="bg-gradient-to-r from-pink-50 to-white rounded-2xl p-4 shadow-sm border border-pink-100">
+           <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                 <div className="bg-pink-100 p-2 rounded-full">
+                    <Baby className="text-pink-500" size={24} />
+                 </div>
+                 <div>
+                    <h2 className="font-bold text-gray-800">Pregnancy Mode</h2>
+                    <p className="text-xs text-gray-500">Pause predictions & track baby</p>
+                 </div>
+              </div>
+              <button 
+                  onClick={togglePregnancyMode}
+                  className={`w-12 h-6 rounded-full transition-colors relative ${userSettings.pregnancyMode ? 'bg-pink-500' : 'bg-gray-200'}`}
+                >
+                    <div className={`absolute top-1 left-1 bg-white w-4 h-4 rounded-full transition-transform ${userSettings.pregnancyMode ? 'translate-x-6' : ''}`}></div>
+                </button>
+           </div>
+        </div>
+
+        {/* Wellness Goals */}
         <div className="bg-white rounded-2xl p-4 shadow-sm">
-          <div className="flex items-center space-x-2 mb-4">
-             <Bell className="text-rose-500" size={20} />
-             <h2 className="font-bold text-gray-800">Notifications</h2>
-          </div>
+          <h2 className="font-bold text-gray-800 mb-4">Wellness Goals</h2>
+          
           <div className="space-y-4">
-             <div className="flex items-center justify-between">
-                <span className="text-gray-600 text-sm font-medium">Period Prediction</span>
-                <button 
-                  onClick={() => toggleReminder('periodStart')}
-                  className={`w-12 h-6 rounded-full transition-colors relative ${reminders.periodStart ? 'bg-rose-500' : 'bg-gray-200'}`}
-                >
-                    <div className={`absolute top-1 left-1 bg-white w-4 h-4 rounded-full transition-transform ${reminders.periodStart ? 'translate-x-6' : ''}`}></div>
-                </button>
+             {/* Sleep Goal */}
+             <div className="flex items-center justify-between p-3 bg-indigo-50 rounded-xl">
+                <div className="flex items-center space-x-3">
+                   <div className="bg-white p-2 rounded-lg shadow-sm">
+                      <Moon size={18} className="text-indigo-500" />
+                   </div>
+                   <div>
+                       <span className="text-sm font-bold text-gray-700 block">Sleep Target</span>
+                       <span className="text-xs text-gray-400">Hours per night</span>
+                   </div>
+                </div>
+                <div className="flex items-center space-x-3">
+                   <button onClick={() => updateGoal('sleepGoal', -0.5)} className="w-8 h-8 rounded-full bg-white text-gray-500 shadow-sm flex items-center justify-center hover:bg-indigo-100">
+                      <Minus size={14} />
+                   </button>
+                   <span className="font-bold text-gray-800 w-8 text-center">{userSettings.sleepGoal || 8}</span>
+                   <button onClick={() => updateGoal('sleepGoal', 0.5)} className="w-8 h-8 rounded-full bg-indigo-500 text-white shadow-sm flex items-center justify-center hover:bg-indigo-600">
+                      <Plus size={14} />
+                   </button>
+                </div>
              </div>
-             <div className="flex items-center justify-between">
-                <span className="text-gray-600 text-sm font-medium">Fertile Window</span>
-                <button 
-                  onClick={() => toggleReminder('fertileWindow')}
-                  className={`w-12 h-6 rounded-full transition-colors relative ${reminders.fertileWindow ? 'bg-rose-500' : 'bg-gray-200'}`}
-                >
-                    <div className={`absolute top-1 left-1 bg-white w-4 h-4 rounded-full transition-transform ${reminders.fertileWindow ? 'translate-x-6' : ''}`}></div>
-                </button>
-             </div>
-             <div className="flex items-center justify-between">
-                <span className="text-gray-600 text-sm font-medium">Log Symptoms</span>
-                <button 
-                  onClick={() => toggleReminder('logSymptoms')}
-                  className={`w-12 h-6 rounded-full transition-colors relative ${reminders.logSymptoms ? 'bg-rose-500' : 'bg-gray-200'}`}
-                >
-                    <div className={`absolute top-1 left-1 bg-white w-4 h-4 rounded-full transition-transform ${reminders.logSymptoms ? 'translate-x-6' : ''}`}></div>
-                </button>
+
+             {/* Water Goal */}
+             <div className="flex items-center justify-between p-3 bg-blue-50 rounded-xl">
+                <div className="flex items-center space-x-3">
+                   <div className="bg-white p-2 rounded-lg shadow-sm">
+                      <Droplet size={18} className="text-blue-500" />
+                   </div>
+                   <div>
+                       <span className="text-sm font-bold text-gray-700 block">Hydration</span>
+                       <span className="text-xs text-gray-400">Cups per day</span>
+                   </div>
+                </div>
+                <div className="flex items-center space-x-3">
+                   <button onClick={() => updateGoal('waterGoal', -1)} className="w-8 h-8 rounded-full bg-white text-gray-500 shadow-sm flex items-center justify-center hover:bg-blue-100">
+                      <Minus size={14} />
+                   </button>
+                   <span className="font-bold text-gray-800 w-8 text-center">{userSettings.waterGoal || 8}</span>
+                   <button onClick={() => updateGoal('waterGoal', 1)} className="w-8 h-8 rounded-full bg-blue-500 text-white shadow-sm flex items-center justify-center hover:bg-blue-600">
+                      <Plus size={14} />
+                   </button>
+                </div>
              </div>
           </div>
         </div>

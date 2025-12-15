@@ -13,6 +13,9 @@ export interface UserSettings {
     fertileWindow: boolean;
     logSymptoms: boolean;
   };
+  pregnancyMode?: boolean;
+  waterGoal?: number;
+  sleepGoal?: number;
 }
 
 export interface Symptom {

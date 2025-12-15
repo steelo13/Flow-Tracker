@@ -20,7 +20,10 @@ const DEFAULT_USER: UserSettings = {
     periodStart: true,
     fertileWindow: true,
     logSymptoms: false
-  }
+  },
+  pregnancyMode: false,
+  waterGoal: 8,
+  sleepGoal: 8
 };
 
 const App: React.FC = () => {
