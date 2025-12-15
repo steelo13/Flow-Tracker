@@ -8,7 +8,7 @@ interface PartnersProps {
 
 const Partners: React.FC<PartnersProps> = ({ userSettings }) => {
   return (
-    <div className="flex flex-col h-full bg-purple-50 pb-24 overflow-y-auto no-scrollbar">
+    <div className="flex flex-col h-full bg-purple-50 pb-24 overflow-y-auto">
        {/* Header */}
        <div className="bg-white p-6 rounded-b-3xl shadow-sm mb-6">
           <div className="flex items-center space-x-2 mb-4">

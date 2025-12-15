@@ -2,24 +2,54 @@ import { UserSettings, CyclePhase } from '../types';
 
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
-export const calculateDaysUntilPeriod = (settings: UserSettings): number => {
-  const lastStart = new Date(settings.lastPeriodStart).getTime();
-  const today = new Date().getTime();
+export const calculateDaysUntilPeriod = (settings: UserSettings, referenceDate: Date = new Date()): number => {
+  const lastStart = new Date(settings.lastPeriodStart);
+  lastStart.setHours(0,0,0,0);
   
-  // Simple calculation: Last start + cycle length - days elapsed
-  const nextStart = lastStart + (settings.cycleLength * MS_PER_DAY);
-  const diffTime = nextStart - today;
-  const diffDays = Math.ceil(diffTime / MS_PER_DAY);
+  const ref = new Date(referenceDate);
+  ref.setHours(0,0,0,0);
   
-  return diffDays; // Can be negative if period is late
+  const cycleLength = settings.cycleLength;
+  const expectedNext = new Date(lastStart.getTime() + cycleLength * MS_PER_DAY);
+
+  // Check if we are in a "Late" scenario:
+  // The reference date is past the expected period, AND it is not in the future (relative to real time).
+  // If we select a future date, we want the prediction (positive days), not "late".
+  const isOverdue = ref.getTime() >= expectedNext.getTime();
+  const isFuture = ref.getTime() > new Date().getTime();
+
+  if (isOverdue && !isFuture) {
+     // Return negative number indicating days late
+     const diffTime = expectedNext.getTime() - ref.getTime();
+     return Math.ceil(diffTime / MS_PER_DAY);
+  }
+
+  // Otherwise (Future prediction OR Past historical view OR Current normal cycle), 
+  // assume cycles proceeded normally using modular arithmetic.
+  const diffTime = ref.getTime() - lastStart.getTime();
+  const diffDays = Math.floor(diffTime / MS_PER_DAY);
+  
+  let daysIntoCycle = diffDays % cycleLength;
+  if (daysIntoCycle < 0) daysIntoCycle += cycleLength;
+  
+  return cycleLength - daysIntoCycle;
 };
 
-export const getCycleDay = (settings: UserSettings): number => {
-  const lastStart = new Date(settings.lastPeriodStart).getTime();
-  const today = new Date().getTime();
-  const diffTime = today - lastStart;
-  const dayOfCycle = Math.floor(diffTime / MS_PER_DAY) + 1;
-  return dayOfCycle;
+export const getCycleDay = (settings: UserSettings, referenceDate: Date = new Date()): number => {
+  const lastStart = new Date(settings.lastPeriodStart);
+  lastStart.setHours(0,0,0,0);
+  
+  const ref = new Date(referenceDate);
+  ref.setHours(0,0,0,0);
+  
+  const diffTime = ref.getTime() - lastStart.getTime();
+  const diffDays = Math.floor(diffTime / MS_PER_DAY);
+
+  // Use modulo to find the day within the theoretical cycle for that date
+  let dayOfCycle = (diffDays % settings.cycleLength); // 0-based result
+  if (dayOfCycle < 0) dayOfCycle += settings.cycleLength;
+  
+  return dayOfCycle + 1; // Return 1-based index (Day 1..28)
 };
 
 export const getCyclePhase = (dayOfCycle: number, cycleLength: number, periodLength: number): CyclePhase => {

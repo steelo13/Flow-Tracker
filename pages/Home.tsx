@@ -3,7 +3,7 @@ import CircularTracker from '../components/CircularTracker';
 import DailyInsights from '../components/DailyInsights';
 import SymptomLogger from '../components/SymptomLogger';
 import { UserSettings } from '../types';
-import { calculateDaysUntilPeriod, getCycleDay } from '../services/cycleService';
+import { calculateDaysUntilPeriod, getCycleDay, getCalendarDayStatus } from '../services/cycleService';
 import { logDailySymptoms } from '../services/db';
 import { Calendar as CalendarIcon, ChevronRight } from 'lucide-react';
 
@@ -13,52 +13,90 @@ interface HomeProps {
 
 const Home: React.FC<HomeProps> = ({ userSettings }) => {
   const [isLoggerOpen, setIsLoggerOpen] = useState(false);
-  const daysUntil = calculateDaysUntilPeriod(userSettings);
-  const cycleDay = getCycleDay(userSettings);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
+  // Pass selectedDate to recalculate the main wheel based on user selection
+  const daysUntil = calculateDaysUntilPeriod(userSettings, selectedDate);
+  const cycleDay = getCycleDay(userSettings, selectedDate);
   
   const handleSaveSymptoms = async (symptoms: string[]) => {
-    const today = new Date().toISOString();
-    await logDailySymptoms(today, symptoms);
-    // Optional: Add toast notification here
-    console.log('Symptoms saved to database:', symptoms);
+    // Use the selected date for logging instead of always 'now'
+    const dateToLog = selectedDate.toISOString();
+    await logDailySymptoms(dateToLog, symptoms);
+    console.log(`Symptoms saved to database for ${dateToLog}:`, symptoms);
   };
   
-  // Simulated dates for the calendar strip
+  // Generate dates for the calendar strip (center around today to keep the strip stable)
+  // We'll show a 1 week window: 3 days before, 3 days after to ensure unique weekdays
   const dates = Array.from({ length: 7 }, (_, i) => {
     const d = new Date();
-    d.setDate(d.getDate() - 3 + i);
+    d.setDate(d.getDate() - 3 + i); 
     return d;
   });
 
+  const isSelectedDateToday = selectedDate.toDateString() === new Date().toDateString();
+
   return (
-    <div className="flex flex-col h-full bg-gradient-to-b from-purple-50 to-white pb-24">
+    <div className="flex flex-col h-full bg-gradient-to-b from-purple-50 to-white pb-24 overflow-y-auto">
       {/* Top Header */}
       <div className="flex justify-between items-center px-4 pt-4 pb-2">
         <div className="flex items-center space-x-2 bg-white px-3 py-1.5 rounded-full shadow-sm">
-           <span className="text-sm font-bold text-gray-700">Today</span>
+           <span className={`text-sm font-bold ${isSelectedDateToday ? 'text-gray-700' : 'text-purple-600'}`}>
+             {isSelectedDateToday ? 'Today' : 'Selected'}
+           </span>
            <span className="text-gray-300">|</span>
-           <span className="text-sm text-gray-500">{new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
+           <span className="text-sm text-gray-500">
+             {selectedDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+           </span>
         </div>
-        <button className="p-2 bg-white rounded-full shadow-sm">
-           <CalendarIcon size={20} className="text-gray-600" />
+        <button 
+          onClick={() => setSelectedDate(new Date())}
+          className="p-2 bg-white rounded-full shadow-sm active:bg-gray-100 transition-colors"
+          title="Jump to Today"
+        >
+           <CalendarIcon size={20} className={isSelectedDateToday ? "text-gray-400" : "text-rose-500"} />
         </button>
       </div>
 
       {/* Calendar Strip */}
-      <div className="flex justify-between px-4 py-4">
+      <div className="flex justify-between items-center px-4 py-4">
         {dates.map((date, idx) => {
-          const isToday = idx === 3;
-          const isPeriod = idx > 4; // Mock logic
+          const isSelected = date.toDateString() === selectedDate.toDateString();
+          
+          // Get real status from service
+          const status = getCalendarDayStatus(date, userSettings);
+          const isPeriod = status === 'period';
+          const isOvulation = status === 'ovulation';
+          const isFertile = status === 'fertile';
+
           return (
-            <div key={idx} className={`flex flex-col items-center space-y-1 ${isToday ? 'opacity-100' : 'opacity-60'}`}>
-              <span className="text-xs text-gray-500 font-medium">{date.toLocaleDateString('en-US', { weekday: 'narrow' })}</span>
-              <div className={`w-8 h-8 flex items-center justify-center rounded-full text-sm font-bold
-                ${isToday ? 'bg-gray-800 text-white' : isPeriod ? 'bg-rose-100 text-rose-500' : 'bg-transparent text-gray-700'}
+            <button 
+              key={idx} 
+              onClick={() => setSelectedDate(date)}
+              className={`flex flex-col items-center space-y-1 transition-opacity ${isSelected ? 'opacity-100' : 'opacity-60'}`}
+            >
+              <span className={`text-xs font-medium ${isSelected ? 'text-gray-800' : 'text-gray-500'}`}>
+                {date.toLocaleDateString('en-US', { weekday: 'narrow' })}
+              </span>
+              
+              <div className={`
+                w-8 h-8 flex items-center justify-center rounded-full text-sm font-bold transition-all relative
+                ${isSelected 
+                    ? 'bg-gray-800 text-white scale-110 shadow-md ring-2 ring-offset-1 ring-gray-300' 
+                    : isPeriod 
+                      ? 'bg-rose-100 text-rose-500' 
+                      : isOvulation
+                        ? 'bg-teal-50 text-teal-600 border border-teal-200'
+                        : 'bg-transparent text-gray-700'
+                }
               `}>
                 {date.getDate()}
+                {/* Small indicator dots for status */}
+                {!isSelected && isPeriod && <div className="absolute -bottom-1 w-1 h-1 rounded-full bg-rose-500"></div>}
+                {!isSelected && isOvulation && <div className="absolute -bottom-1 w-1 h-1 rounded-full bg-teal-500"></div>}
+                {!isSelected && isFertile && !isOvulation && <div className="absolute -bottom-1 w-1 h-1 rounded-full bg-teal-200"></div>}
               </div>
-              {isPeriod && <div className="w-1.5 h-1.5 rounded-full bg-rose-500"></div>}
-            </div>
+            </button>
           );
         })}
       </div>

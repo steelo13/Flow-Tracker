@@ -80,9 +80,9 @@ const CalendarPage: React.FC<CalendarProps> = ({ userSettings }) => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-white pb-24">
+    <div className="flex flex-col h-full bg-white pb-24 overflow-y-auto">
       {/* Header */}
-      <div className="flex justify-between items-center p-4 border-b border-gray-100">
+      <div className="flex justify-between items-center p-4 border-b border-gray-100 sticky top-0 bg-white z-10">
         <button onClick={() => changeMonth(-1)} className="p-2 hover:bg-gray-100 rounded-full">
           <ChevronLeft className="text-gray-600" />
         </button>
@@ -95,7 +95,7 @@ const CalendarPage: React.FC<CalendarProps> = ({ userSettings }) => {
       </div>
 
       {/* Weekday Header */}
-      <div className="grid grid-cols-7 border-b border-gray-100">
+      <div className="grid grid-cols-7 border-b border-gray-100 bg-white sticky top-[65px] z-10">
         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
           <div key={day} className="text-center py-2 text-xs font-bold text-gray-400 uppercase">
             {day}
@@ -104,7 +104,7 @@ const CalendarPage: React.FC<CalendarProps> = ({ userSettings }) => {
       </div>
 
       {/* Calendar Grid */}
-      <div className="grid grid-cols-7 overflow-y-auto">
+      <div className="grid grid-cols-7">
         {renderCalendarGrid()}
       </div>
 

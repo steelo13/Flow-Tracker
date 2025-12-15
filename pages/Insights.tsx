@@ -4,12 +4,12 @@ import { PlayCircle } from 'lucide-react';
 
 const Insights = () => {
   return (
-    <div className="bg-gray-50 h-full pb-24 overflow-y-auto no-scrollbar">
-      <div className="bg-white sticky top-0 z-10 p-4 shadow-sm">
-        <h1 className="text-2xl font-bold text-gray-900">Insights Library</h1>
-        <div className="flex space-x-2 mt-4 overflow-x-auto no-scrollbar">
-           {['For You', 'Reproductive Health', 'Sex & Relationships', 'Pregnancy'].map((cat, i) => (
-             <button key={i} className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium ${i === 0 ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-600'}`}>
+    <div className="bg-gray-50 h-full pb-24 overflow-y-auto">
+      <div className="bg-white sticky top-0 z-10 pt-4 pb-2 shadow-sm">
+        <h1 className="text-2xl font-bold text-gray-900 px-4">Insights Library</h1>
+        <div className="flex space-x-2 mt-4 overflow-x-auto no-scrollbar px-4 pb-2">
+           {['For You', 'Reproductive Health', 'Sex & Relationships', 'Pregnancy', 'Nutrition', 'Fitness'].map((cat, i) => (
+             <button key={i} className={`flex-shrink-0 whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-colors ${i === 0 ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
                {cat}
              </button>
            ))}
