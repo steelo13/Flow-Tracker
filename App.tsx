@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import Partners from './pages/Partners';
 import Insights from './pages/Insights';
 import CalendarPage from './pages/Calendar';
+import Profile from './pages/Profile';
 import BottomNav from './components/BottomNav';
 import { AppRoute, UserSettings } from './types';
 import { getUserSettings, saveUserSettings } from './services/db';
@@ -14,7 +15,12 @@ const DEFAULT_USER: UserSettings = {
   cycleLength: 28,
   periodLength: 5,
   lastPeriodStart: new Date(Date.now() - 22 * 24 * 60 * 60 * 1000).toISOString(), // 22 days ago
-  completedLessons: []
+  completedLessons: [],
+  reminders: {
+    periodStart: true,
+    fertileWindow: true,
+    logSymptoms: false
+  }
 };
 
 const App: React.FC = () => {
@@ -58,20 +64,7 @@ const App: React.FC = () => {
       case AppRoute.CALENDAR:
         return <CalendarPage userSettings={userSettings} />;
       case AppRoute.PROFILE:
-        return (
-           <div className="flex flex-col items-center justify-center h-full bg-white p-6">
-             <div className="w-24 h-24 bg-gray-200 rounded-full mb-4 overflow-hidden border-4 border-white shadow-lg">
-                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&h=200&q=80" className="w-full h-full object-cover" />
-             </div>
-             <h2 className="text-2xl font-bold text-gray-800">{userSettings.name}</h2>
-             <button className="mt-6 bg-gray-100 px-6 py-3 rounded-xl w-full text-left font-semibold text-gray-700 hover:bg-gray-200 transition-colors">Settings</button>
-             <button className="mt-3 bg-gray-100 px-6 py-3 rounded-xl w-full text-left font-semibold text-gray-700 hover:bg-gray-200 transition-colors">Reminders</button>
-             <button className="mt-3 bg-rose-50 px-6 py-3 rounded-xl w-full text-left font-semibold text-rose-600 hover:bg-rose-100 transition-colors">Access Code</button>
-             <div className="mt-auto text-xs text-gray-400 text-center pb-20">
-               {isLoading ? "Syncing..." : "Data Synced with Firebase"}
-             </div>
-           </div>
-        );
+        return <Profile userSettings={userSettings} onUpdateSettings={handleUpdateSettings} />;
       default:
         return <Home userSettings={userSettings} />;
     }

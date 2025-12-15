@@ -7,6 +7,12 @@ export interface UserSettings {
   lastPeriodStart: string; // ISO Date string
   name: string;
   completedLessons?: string[]; // IDs of completed lessons
+  profileImage?: string; // Base64 or URL
+  reminders?: {
+    periodStart: boolean;
+    fertileWindow: boolean;
+    logSymptoms: boolean;
+  };
 }
 
 export interface Symptom {
