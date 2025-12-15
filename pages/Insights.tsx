@@ -10,13 +10,10 @@ interface InsightsProps {
 }
 
 const Insights: React.FC<InsightsProps> = ({ userSettings }) => {
-  const [activeCategory, setActiveCategory] = useState('For You');
   const [query, setQuery] = useState('');
   const [aiResponse, setAiResponse] = useState<string | null>(null);
   const [isThinking, setIsThinking] = useState(false);
   const [selectedArticle, setSelectedArticle] = useState<InsightArticle | null>(null);
-
-  const categories = ['For You', 'Reproductive Health', 'Sex & Relationships', 'Pregnancy', 'Nutrition', 'Fitness'];
 
   const handleAskAI = async () => {
     if (!query.trim()) return;
@@ -56,13 +53,6 @@ const Insights: React.FC<InsightsProps> = ({ userSettings }) => {
         setIsThinking(false);
     }
   };
-
-  const filteredInsights = activeCategory === 'For You' 
-    ? INSIGHTS 
-    : INSIGHTS.filter(i => i.category === activeCategory || (activeCategory === 'Fitness' && i.category === 'Fitness') || (activeCategory === 'Nutrition' && i.category === 'Nutrition'));
-
-  // Fallback if no articles match category
-  const displayInsights = filteredInsights.length > 0 ? filteredInsights : [];
 
   // DETAIL VIEW
   if (selectedArticle) {
@@ -120,19 +110,8 @@ const Insights: React.FC<InsightsProps> = ({ userSettings }) => {
   return (
     <div className="bg-gray-50 h-full pb-24 overflow-y-auto">
       {/* Header */}
-      <div className="bg-white sticky top-0 z-10 pt-4 pb-2 shadow-sm">
-        <h1 className="text-2xl font-bold text-gray-900 px-4">Insights Library</h1>
-        <div className="flex space-x-2 mt-4 overflow-x-auto no-scrollbar px-4 pb-2">
-           {categories.map((cat) => (
-             <button 
-                key={cat} 
-                onClick={() => setActiveCategory(cat)}
-                className={`flex-shrink-0 whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeCategory === cat ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-             >
-               {cat}
-             </button>
-           ))}
-        </div>
+      <div className="bg-white sticky top-0 z-10 pt-4 pb-4 shadow-sm px-4">
+        <h1 className="text-2xl font-bold text-gray-900">Insights Library</h1>
       </div>
 
       <div className="p-4 space-y-6">
@@ -193,30 +172,28 @@ const Insights: React.FC<InsightsProps> = ({ userSettings }) => {
         </div>
 
         {/* Featured Course */}
-        {activeCategory === 'For You' && (
-            <div className="relative h-64 rounded-2xl overflow-hidden shadow-md group cursor-pointer transition-transform hover:scale-[1.01]">
-                <img src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&h=600&q=80" className="absolute inset-0 w-full h-full object-cover" alt="Yoga" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-6">
-                    <span className="text-white text-xs font-bold uppercase tracking-wider mb-2 bg-rose-500 w-fit px-2 py-1 rounded">Course</span>
-                    <h2 className="text-white text-2xl font-bold mb-1">Mastering your Cycle</h2>
-                    <div className="flex items-center text-white/90 text-sm space-x-2">
-                        <PlayCircle size={16} />
-                        <span>5 Lessons • 25 min</span>
-                    </div>
+        <div className="relative h-64 rounded-2xl overflow-hidden shadow-md group cursor-pointer transition-transform hover:scale-[1.01]">
+            <img src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&h=600&q=80" className="absolute inset-0 w-full h-full object-cover" alt="Yoga" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-6">
+                <span className="text-white text-xs font-bold uppercase tracking-wider mb-2 bg-rose-500 w-fit px-2 py-1 rounded">Course</span>
+                <h2 className="text-white text-2xl font-bold mb-1">Mastering your Cycle</h2>
+                <div className="flex items-center text-white/90 text-sm space-x-2">
+                    <PlayCircle size={16} />
+                    <span>5 Lessons • 25 min</span>
                 </div>
             </div>
-        )}
+        </div>
 
         {/* Article Grid */}
         <div>
             <div className="flex justify-between items-center mb-3">
-                <h3 className="font-bold text-lg text-gray-800">{activeCategory === 'For You' ? 'Recommended for you' : `${activeCategory} Articles`}</h3>
+                <h3 className="font-bold text-lg text-gray-800">Latest Articles</h3>
                 <Search size={18} className="text-gray-400" />
             </div>
             
-            {displayInsights.length > 0 ? (
+            {INSIGHTS.length > 0 ? (
                 <div className="grid grid-cols-1 gap-4">
-                {displayInsights.map(article => (
+                {INSIGHTS.map(article => (
                     <div 
                         key={article.id} 
                         onClick={() => setSelectedArticle(article)}
@@ -235,7 +212,7 @@ const Insights: React.FC<InsightsProps> = ({ userSettings }) => {
                 </div>
             ) : (
                 <div className="text-center py-10 bg-white rounded-2xl border border-dashed border-gray-200">
-                    <p className="text-gray-400 text-sm">No articles found in this category.</p>
+                    <p className="text-gray-400 text-sm">No articles found.</p>
                 </div>
             )}
         </div>
