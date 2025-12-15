@@ -33,8 +33,8 @@ const Partners: React.FC<PartnersProps> = ({ userSettings }) => {
              <div className="flex space-x-4">
                 <div className="flex-1">
                    <img 
-                     src="https://picsum.photos/150/150?random=10" 
-                     className="w-16 h-16 rounded-full border-4 border-rose-100 mx-auto mb-2" 
+                     src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=150&h=150&q=80" 
+                     className="w-16 h-16 rounded-full border-4 border-rose-100 mx-auto mb-2 object-cover" 
                      alt="Her" 
                    />
                    <p className="text-center font-bold text-gray-800">Her Day</p>
@@ -50,8 +50,8 @@ const Partners: React.FC<PartnersProps> = ({ userSettings }) => {
 
                 <div className="flex-1">
                    <img 
-                     src="https://picsum.photos/150/150?random=11" 
-                     className="w-16 h-16 rounded-full border-4 border-blue-100 mx-auto mb-2" 
+                     src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&h=150&q=80" 
+                     className="w-16 h-16 rounded-full border-4 border-blue-100 mx-auto mb-2 object-cover" 
                      alt="Him" 
                    />
                    <p className="text-center font-bold text-gray-800">His Role</p>

@@ -19,7 +19,7 @@ const Insights = () => {
       <div className="p-4 space-y-6">
         {/* Featured Course */}
         <div className="relative h-64 rounded-2xl overflow-hidden shadow-md group cursor-pointer">
-           <img src="https://picsum.photos/800/600?grayscale" className="absolute inset-0 w-full h-full object-cover transition-transform group-hover:scale-105" />
+           <img src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&h=600&q=80" className="absolute inset-0 w-full h-full object-cover transition-transform group-hover:scale-105" />
            <div className="absolute inset-0 bg-black/40 flex flex-col justify-end p-6">
               <span className="text-white text-xs font-bold uppercase tracking-wider mb-2 bg-rose-500 w-fit px-2 py-1 rounded">Course</span>
               <h2 className="text-white text-2xl font-bold mb-1">Mastering your Cycle</h2>

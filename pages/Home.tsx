@@ -4,6 +4,7 @@ import DailyInsights from '../components/DailyInsights';
 import SymptomLogger from '../components/SymptomLogger';
 import { UserSettings } from '../types';
 import { calculateDaysUntilPeriod, getCycleDay } from '../services/cycleService';
+import { logDailySymptoms } from '../services/db';
 import { Calendar as CalendarIcon, ChevronRight } from 'lucide-react';
 
 interface HomeProps {
@@ -14,6 +15,13 @@ const Home: React.FC<HomeProps> = ({ userSettings }) => {
   const [isLoggerOpen, setIsLoggerOpen] = useState(false);
   const daysUntil = calculateDaysUntilPeriod(userSettings);
   const cycleDay = getCycleDay(userSettings);
+  
+  const handleSaveSymptoms = async (symptoms: string[]) => {
+    const today = new Date().toISOString();
+    await logDailySymptoms(today, symptoms);
+    // Optional: Add toast notification here
+    console.log('Symptoms saved to database:', symptoms);
+  };
   
   // Simulated dates for the calendar strip
   const dates = Array.from({ length: 7 }, (_, i) => {
@@ -88,7 +96,7 @@ const Home: React.FC<HomeProps> = ({ userSettings }) => {
       <SymptomLogger 
         isOpen={isLoggerOpen} 
         onClose={() => setIsLoggerOpen(false)}
-        onSave={(symptoms) => console.log('Saved', symptoms)}
+        onSave={handleSaveSymptoms}
       />
     </div>
   );

@@ -28,21 +28,21 @@ export const INSIGHTS: InsightArticle[] = [
     id: '1',
     title: 'Why do I crave chocolate before my period?',
     category: 'Nutrition',
-    imageUrl: 'https://picsum.photos/400/200?random=1',
+    imageUrl: 'https://images.unsplash.com/photo-1511381939415-e44015466834?auto=format&fit=crop&w=400&h=200&q=80',
     readTime: '3 min read'
   },
   {
     id: '2',
     title: 'Understanding your fertile window',
     category: 'Fertility',
-    imageUrl: 'https://picsum.photos/400/200?random=2',
+    imageUrl: 'https://images.unsplash.com/photo-1470163395405-d2b80e7450ed?auto=format&fit=crop&w=400&h=200&q=80',
     readTime: '5 min read'
   },
   {
     id: '3',
     title: '5 Yoga poses for cramp relief',
     category: 'Fitness',
-    imageUrl: 'https://picsum.photos/400/200?random=3',
+    imageUrl: 'https://images.unsplash.com/photo-1544367563-12123d8965cd?auto=format&fit=crop&w=400&h=200&q=80',
     readTime: '4 min read'
   }
 ];
