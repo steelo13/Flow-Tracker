@@ -1,5 +1,5 @@
 import React from 'react';
-import { Droplets, Plus } from 'lucide-react';
+import { Droplets, Plus, Info } from 'lucide-react';
 import { DailyLog } from '../types';
 import { MOCK_SYMPTOMS } from '../constants';
 
@@ -17,19 +17,40 @@ const DailyInsights: React.FC<DailyInsightsProps> = ({ date, dailyLog, pregnancy
   
   const dischargeSymptom = loggedSymptomsData.find(s => s?.category === 'discharge');
   
-  // Determine chance color/width
-  let chanceColor = "text-pink-500";
-  let barWidth = "w-1/4"; // Low
-  let barColor = "bg-pink-500";
+  // Determine chance style
+  let chanceStyle = {
+      color: "text-gray-400",
+      bg: "bg-gray-100",
+      barColor: "bg-gray-300",
+      barWidth: "w-1/4",
+      label: "Low Chance"
+  };
   
-  if (pregnancyChance === 'Medium') {
-      chanceColor = "text-teal-600";
-      barWidth = "w-1/2";
-      barColor = "bg-teal-500";
-  } else if (pregnancyChance === 'High') {
-      chanceColor = "text-teal-600";
-      barWidth = "w-full";
-      barColor = "bg-teal-500";
+  if (pregnancyChance === 'High') {
+      chanceStyle = {
+          color: "text-teal-600",
+          bg: "bg-teal-50",
+          barColor: "bg-teal-500",
+          barWidth: "w-full",
+          label: "Peak Fertility"
+      };
+  } else if (pregnancyChance === 'Medium') {
+      chanceStyle = {
+          color: "text-teal-500",
+          bg: "bg-teal-50",
+          barColor: "bg-teal-400",
+          barWidth: "w-1/2",
+          label: "High Chance"
+      };
+  } else {
+      // Low
+      chanceStyle = {
+          color: "text-rose-400",
+          bg: "bg-rose-50",
+          barColor: "bg-rose-300",
+          barWidth: "w-1/5",
+          label: "Low Chance"
+      };
   }
 
   const isToday = date.toDateString() === new Date().toDateString();
@@ -90,13 +111,19 @@ const DailyInsights: React.FC<DailyInsightsProps> = ({ date, dailyLog, pregnancy
         </div>
 
         {/* Card 3: Pregnancy Chance */}
-        <div className="flex-shrink-0 w-32 h-32 bg-pink-50 rounded-2xl p-3 flex flex-col justify-between border border-pink-100 shadow-sm">
-          <span className="text-pink-900 font-bold text-xs leading-tight">Pregnancy chance</span>
-          <div className="flex items-center justify-center">
-             <span className={`text-xl font-bold ${chanceColor}`}>{pregnancyChance}</span>
+        <div className={`flex-shrink-0 w-32 h-32 ${chanceStyle.bg} rounded-2xl p-3 flex flex-col justify-between border border-transparent shadow-sm relative overflow-hidden`}>
+          <div className="flex justify-between items-start z-10">
+             <span className={`${chanceStyle.color} font-bold text-xs leading-tight opacity-80`}>Pregnancy</span>
+             <Info size={12} className={chanceStyle.color} />
           </div>
-          <div className="w-full bg-pink-200 h-1.5 rounded-full overflow-hidden">
-            <div className={`h-full ${barColor} ${barWidth} transition-all duration-500`}></div>
+          
+          <div className="flex flex-col items-center justify-center z-10 flex-1">
+             <span className={`text-lg font-extrabold ${chanceStyle.color}`}>{pregnancyChance}</span>
+             <span className={`text-[10px] font-medium ${chanceStyle.color} opacity-75`}>{chanceStyle.label}</span>
+          </div>
+          
+          <div className="w-full bg-white/50 h-1.5 rounded-full overflow-hidden z-10">
+            <div className={`h-full ${chanceStyle.barColor} ${chanceStyle.barWidth} transition-all duration-500`}></div>
           </div>
         </div>
       </div>

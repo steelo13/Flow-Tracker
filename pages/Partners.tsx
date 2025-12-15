@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { UserSettings, DailyLog } from '../types';
-import { Heart, MessageCircle, CheckCircle, Sparkles, Loader, Camera } from 'lucide-react';
+import { Heart, CheckCircle, Sparkles, Loader, Camera } from 'lucide-react';
 import { getCycleDay, getCyclePhase } from '../services/cycleService';
 import { getDailyLog } from '../services/db';
 import { GoogleGenAI } from "@google/genai";
@@ -25,7 +25,7 @@ const Partners: React.FC<PartnersProps> = ({ userSettings }) => {
   const [isAiLoading, setIsAiLoading] = useState(true);
 
   // Checklist State
-  const [checklist, setChecklist] = useState<{id: number, text: string, done: boolean}[]>([]);
+  const [checklist, setChecklist] = useState<{id: string, text: string, done: boolean}[]>([]);
 
   useEffect(() => {
     // 0. Load Photos
@@ -53,40 +53,52 @@ const Partners: React.FC<PartnersProps> = ({ userSettings }) => {
     };
     fetchLog();
 
-    // 3. Set Checklist based on Phase
+    // 3. Set Checklist based on Phase & Load checked state
     const getChecklistItems = (phaseName: string) => {
+        const storedChecks = JSON.parse(localStorage.getItem('partner_checklist_checks') || '{}');
+        
+        let items = [];
         switch(phaseName) {
             case 'menstruation':
-                return [
-                    { id: 1, text: "Bring a heating pad or hot tea", done: false },
-                    { id: 2, text: "Handle dinner responsibilities", done: false },
-                    { id: 3, text: "Offer a gentle massage", done: false }
+                items = [
+                    { id: 'mens_1', text: "Bring a heating pad or hot tea" },
+                    { id: 'mens_2', text: "Handle dinner responsibilities" },
+                    { id: 'mens_3', text: "Offer a gentle massage" }
                 ];
+                break;
             case 'follicular':
-                return [
-                    { id: 1, text: "Plan a fun activity together", done: false },
-                    { id: 2, text: "Compliment her energy", done: false },
-                    { id: 3, text: "Go for a walk outdoors", done: false }
+                items = [
+                    { id: 'foll_1', text: "Plan a fun activity together" },
+                    { id: 'foll_2', text: "Compliment her energy" },
+                    { id: 'foll_3', text: "Go for a walk outdoors" }
                 ];
+                break;
             case 'ovulation':
-                return [
-                    { id: 1, text: "Plan a romantic date night", done: false },
-                    { id: 2, text: "Dress up for dinner", done: false },
-                    { id: 3, text: "Have a deep conversation", done: false }
+                items = [
+                    { id: 'ovu_1', text: "Plan a romantic date night" },
+                    { id: 'ovu_2', text: "Dress up for dinner" },
+                    { id: 'ovu_3', text: "Have a deep conversation" }
                 ];
+                break;
             case 'luteal':
-                return [
-                    { id: 1, text: "Be patient and listening", done: false },
-                    { id: 2, text: "Stock up on favorite snacks", done: false },
-                    { id: 3, text: "Encourage extra rest", done: false }
+                items = [
+                    { id: 'lut_1', text: "Be patient and listening" },
+                    { id: 'lut_2', text: "Stock up on favorite snacks" },
+                    { id: 'lut_3', text: "Encourage extra rest" }
                 ];
+                break;
             default:
-                return [
-                    { id: 1, text: "Ask how she is feeling", done: false },
-                    { id: 2, text: "Give a long hug", done: false },
-                    { id: 3, text: "Tell her you appreciate her", done: false }
+                items = [
+                    { id: 'def_1', text: "Ask how she is feeling" },
+                    { id: 'def_2', text: "Give a long hug" },
+                    { id: 'def_3', text: "Tell her you appreciate her" }
                 ];
         }
+        
+        return items.map(item => ({
+            ...item,
+            done: !!storedChecks[item.id]
+        }));
     };
     setChecklist(getChecklistItems(p));
 
@@ -94,7 +106,7 @@ const Partners: React.FC<PartnersProps> = ({ userSettings }) => {
     const generateAiTip = async (phaseName: string) => {
         setIsAiLoading(true);
         try {
-            // Check if API key exists (in a real app environment)
+            // Check if API key exists
             if (!process.env.API_KEY) {
                 setAiTip("How can I support you best today?");
                 setIsAiLoading(false);
@@ -126,10 +138,23 @@ const Partners: React.FC<PartnersProps> = ({ userSettings }) => {
 
   }, [userSettings]); // Re-run if settings change
 
-  const toggleCheckItem = (id: number) => {
-    setChecklist(prev => prev.map(item => 
-        item.id === id ? { ...item, done: !item.done } : item
-    ));
+  const toggleCheckItem = (id: string) => {
+    setChecklist(prev => {
+        const newChecklist = prev.map(item => 
+            item.id === id ? { ...item, done: !item.done } : item
+        );
+        
+        // Persist to local storage
+        const checks = JSON.parse(localStorage.getItem('partner_checklist_checks') || '{}');
+        const item = newChecklist.find(i => i.id === id);
+        if (item) {
+            if (item.done) checks[id] = true;
+            else delete checks[id];
+        }
+        localStorage.setItem('partner_checklist_checks', JSON.stringify(checks));
+        
+        return newChecklist;
+    });
   };
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'her' | 'his') => {
