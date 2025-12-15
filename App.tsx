@@ -46,7 +46,7 @@ const App: React.FC = () => {
       case AppRoute.PARTNERS:
         return <Partners userSettings={userSettings} />;
       case AppRoute.INSIGHTS:
-        return <Insights />;
+        return <Insights userSettings={userSettings} />;
       case AppRoute.CALENDAR:
         return <CalendarPage userSettings={userSettings} />;
       case AppRoute.PROFILE:
