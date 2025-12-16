@@ -56,6 +56,18 @@ const App: React.FC = () => {
     await saveUserSettings(updated);
   };
 
+  const handleLogout = () => {
+    if (window.confirm('Are you sure you want to log out?')) {
+      // Clear local storage items used by the app
+      localStorage.removeItem('partner_her_photo');
+      localStorage.removeItem('partner_his_photo');
+      localStorage.removeItem('partner_checklist_checks');
+      
+      // Reload the page to reset all state
+      window.location.reload();
+    }
+  };
+
   const renderPage = () => {
     switch (currentRoute) {
       case AppRoute.HOME:
@@ -67,7 +79,7 @@ const App: React.FC = () => {
       case AppRoute.CALENDAR:
         return <CalendarPage userSettings={userSettings} />;
       case AppRoute.PROFILE:
-        return <Profile userSettings={userSettings} onUpdateSettings={handleUpdateSettings} />;
+        return <Profile userSettings={userSettings} onUpdateSettings={handleUpdateSettings} onLogout={handleLogout} />;
       default:
         return <Home userSettings={userSettings} />;
     }

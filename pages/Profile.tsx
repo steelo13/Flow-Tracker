@@ -6,11 +6,12 @@ import { Camera, Activity, ChevronRight, LogOut, FileText, Shield, Moon, Droplet
 interface ProfileProps {
   userSettings: UserSettings;
   onUpdateSettings: (settings: Partial<UserSettings>) => void;
+  onLogout: () => void;
 }
 
 type ProfileView = 'main' | 'history' | 'privacy' | 'terms';
 
-const Profile: React.FC<ProfileProps> = ({ userSettings, onUpdateSettings }) => {
+const Profile: React.FC<ProfileProps> = ({ userSettings, onUpdateSettings, onLogout }) => {
   const [activeView, setActiveView] = useState<ProfileView>('main');
   const [isEditing, setIsEditing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -385,7 +386,10 @@ const Profile: React.FC<ProfileProps> = ({ userSettings, onUpdateSettings }) => 
                </div>
                <ChevronRight size={18} className="text-gray-300" />
            </button>
-            <button className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
+            <button 
+                onClick={onLogout}
+                className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
+            >
                <div className="flex items-center space-x-3">
                    <div className="p-2 bg-rose-50 rounded-lg">
                      <LogOut size={18} className="text-rose-500" />
