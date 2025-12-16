@@ -1,7 +1,7 @@
 
 import React, { useState, useRef } from 'react';
 import { UserSettings } from '../types';
-import { Camera, Activity, ChevronRight, LogOut, FileText, Shield, Baby, Moon, Droplet, Minus, Plus, ArrowLeft } from 'lucide-react';
+import { Camera, Activity, ChevronRight, LogOut, FileText, Shield, Moon, Droplet, Minus, Plus, ArrowLeft } from 'lucide-react';
 
 interface ProfileProps {
   userSettings: UserSettings;
@@ -39,10 +39,6 @@ const Profile: React.FC<ProfileProps> = ({ userSettings, onUpdateSettings }) => 
     setIsEditing(false);
   };
 
-  const togglePregnancyMode = () => {
-    onUpdateSettings({ pregnancyMode: !userSettings.pregnancyMode });
-  };
-
   const updateGoal = (field: 'waterGoal' | 'sleepGoal', delta: number) => {
     const current = userSettings[field] || (field === 'waterGoal' ? 8 : 8);
     const newValue = Math.max(0, current + delta);
@@ -74,7 +70,7 @@ const Profile: React.FC<ProfileProps> = ({ userSettings, onUpdateSettings }) => 
     }
 
     return (
-        <div className="bg-white min-h-full pb-20 animate-slide-in-right">
+        <div className="bg-white h-full overflow-y-auto pb-20 animate-slide-in-right">
             <div className="sticky top-0 bg-white border-b border-gray-100 p-4 flex items-center z-10 shadow-sm">
                 <button onClick={() => setActiveView('main')} className="p-2 hover:bg-gray-100 rounded-full mr-2 transition-colors">
                     <ArrowLeft size={20} className="text-gray-600" />
@@ -126,7 +122,7 @@ const Profile: React.FC<ProfileProps> = ({ userSettings, onUpdateSettings }) => 
   };
 
   const TextPageView = ({ title, content }: { title: string, content: React.ReactNode }) => (
-      <div className="bg-white min-h-full pb-20 animate-slide-in-right">
+      <div className="bg-white h-full overflow-y-auto pb-20 animate-slide-in-right">
         <div className="sticky top-0 bg-white border-b border-gray-100 p-4 flex items-center z-10 shadow-sm">
             <button onClick={() => setActiveView('main')} className="p-2 hover:bg-gray-100 rounded-full mr-2 transition-colors">
                 <ArrowLeft size={20} className="text-gray-600" />
@@ -287,27 +283,6 @@ const Profile: React.FC<ProfileProps> = ({ userSettings, onUpdateSettings }) => 
       {/* Settings Sections */}
       <div className="px-4 space-y-6">
         
-        {/* Pregnancy Mode */}
-        <div className="bg-gradient-to-r from-pink-50 to-white rounded-2xl p-4 shadow-sm border border-pink-100">
-           <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                 <div className="bg-pink-100 p-2 rounded-full">
-                    <Baby className="text-pink-500" size={24} />
-                 </div>
-                 <div>
-                    <h2 className="font-bold text-gray-800">Pregnancy Mode</h2>
-                    <p className="text-xs text-gray-500">Pause predictions & track baby</p>
-                 </div>
-              </div>
-              <button 
-                  onClick={togglePregnancyMode}
-                  className={`w-12 h-6 rounded-full transition-colors relative ${userSettings.pregnancyMode ? 'bg-pink-500' : 'bg-gray-200'}`}
-                >
-                    <div className={`absolute top-1 left-1 bg-white w-4 h-4 rounded-full transition-transform ${userSettings.pregnancyMode ? 'translate-x-6' : ''}`}></div>
-                </button>
-           </div>
-        </div>
-
         {/* Wellness Goals */}
         <div className="bg-white rounded-2xl p-4 shadow-sm">
           <h2 className="font-bold text-gray-800 mb-4">Wellness Goals</h2>
