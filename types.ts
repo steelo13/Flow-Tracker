@@ -16,6 +16,8 @@ export interface UserSettings {
   pregnancyMode?: boolean;
   waterGoal?: number;
   sleepGoal?: number;
+  isPremium?: boolean; // Subscription status for AI
+  purchasedCourses?: string[]; // IDs of purchased courses
 }
 
 export interface Symptom {

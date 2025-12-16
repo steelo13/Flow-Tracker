@@ -23,7 +23,9 @@ const DEFAULT_USER: UserSettings = {
   },
   pregnancyMode: false,
   waterGoal: 8,
-  sleepGoal: 8
+  sleepGoal: 8,
+  isPremium: false,
+  purchasedCourses: []
 };
 
 const App: React.FC = () => {

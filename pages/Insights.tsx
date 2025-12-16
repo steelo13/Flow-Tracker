@@ -1,9 +1,10 @@
 
 import React, { useState } from 'react';
 import { INSIGHTS, MASTERING_CYCLE_COURSE } from '../constants';
-import { PlayCircle, Sparkles, Send, Loader, Search, Info, ArrowLeft, Clock, ChevronRight, Check } from 'lucide-react';
+import { PlayCircle, Sparkles, Send, Loader, Search, Info, ArrowLeft, Clock, ChevronRight, Check, Lock, Star } from 'lucide-react';
 import { GoogleGenAI } from "@google/genai";
 import { UserSettings, InsightArticle, Course, Lesson } from '../types';
+import PaymentModal from '../components/PaymentModal';
 
 interface InsightsProps {
   userSettings: UserSettings;
@@ -18,7 +19,30 @@ const Insights: React.FC<InsightsProps> = ({ userSettings, onUpdateSettings }) =
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
 
+  // Payment State
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [paymentConfig, setPaymentConfig] = useState<{
+      title: string;
+      price: string;
+      description: string;
+      type: 'subscription' | 'one-time';
+      onSuccess: () => void;
+  } | null>(null);
+
   const handleAskAI = async () => {
+    // Premium Check
+    if (!userSettings.isPremium) {
+        setPaymentConfig({
+            title: "Unlock Flo AI",
+            price: "£9.99",
+            description: "Get unlimited personalized health answers, cycle analysis, and wellness tips tailored to your unique body.",
+            type: 'subscription',
+            onSuccess: () => onUpdateSettings({ isPremium: true })
+        });
+        setPaymentModalOpen(true);
+        return;
+    }
+
     if (!query.trim()) return;
     setIsThinking(true);
     setAiResponse(null);
@@ -57,6 +81,28 @@ const Insights: React.FC<InsightsProps> = ({ userSettings, onUpdateSettings }) =
     }
   };
 
+  const handleCourseClick = (course: Course) => {
+      const isPurchased = (userSettings.purchasedCourses || []).includes(course.id);
+      
+      if (!isPurchased) {
+          setPaymentConfig({
+            title: "Mastering Your Cycle",
+            price: "£29.99",
+            description: "Unlock lifetime access to this expert-led course. Learn to harness your 4 phases for better productivity, fitness, and health.",
+            type: 'one-time',
+            onSuccess: () => {
+                const currentPurchases = userSettings.purchasedCourses || [];
+                onUpdateSettings({ purchasedCourses: [...currentPurchases, course.id] });
+                // Automatically open course after purchase success
+                setTimeout(() => setSelectedCourse(course), 500); 
+            }
+          });
+          setPaymentModalOpen(true);
+      } else {
+          setSelectedCourse(course);
+      }
+  };
+
   const handleCompleteLesson = (lessonId: string) => {
     const completed = userSettings.completedLessons || [];
     if (!completed.includes(lessonId)) {
@@ -64,9 +110,7 @@ const Insights: React.FC<InsightsProps> = ({ userSettings, onUpdateSettings }) =
             completedLessons: [...completed, lessonId]
         });
     }
-    // Navigate back to course menu after a brief delay or let user choose? 
-    // For better UX, we just mark it complete and let them stay or go back.
-    setSelectedLesson(null); // Return to course list to show progress
+    setSelectedLesson(null); 
   };
 
   // LESSON VIEW
@@ -263,6 +307,16 @@ const Insights: React.FC<InsightsProps> = ({ userSettings, onUpdateSettings }) =
   // LIST VIEW
   return (
     <div className="bg-gray-50 h-full pb-24 overflow-y-auto">
+      <PaymentModal 
+         isOpen={paymentModalOpen}
+         onClose={() => setPaymentModalOpen(false)}
+         title={paymentConfig?.title || ''}
+         price={paymentConfig?.price || ''}
+         description={paymentConfig?.description || ''}
+         type={paymentConfig?.type || 'one-time'}
+         onSuccess={paymentConfig?.onSuccess || (() => {})}
+      />
+
       {/* Header */}
       <div className="bg-white sticky top-0 z-10 pt-4 pb-4 shadow-sm px-4">
         <h1 className="text-2xl font-bold text-gray-900">Insights Library</h1>
@@ -271,14 +325,25 @@ const Insights: React.FC<InsightsProps> = ({ userSettings, onUpdateSettings }) =
       <div className="p-4 space-y-6">
         
         {/* Ask AI Section */}
-        <div className="bg-gradient-to-br from-purple-600 to-indigo-700 rounded-2xl p-5 text-white shadow-lg">
-           <div className="flex items-center space-x-2 mb-3">
-              <Sparkles className="text-yellow-300" size={20} />
-              <h2 className="font-bold text-lg">Ask Flo AI</h2>
+        <div className={`relative bg-gradient-to-br from-purple-600 to-indigo-700 rounded-2xl p-5 text-white shadow-lg overflow-hidden ${!userSettings.isPremium ? 'cursor-pointer' : ''}`} onClick={!userSettings.isPremium ? handleAskAI : undefined}>
+           
+           {/* Background Deco */}
+           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
+
+           <div className="flex items-center justify-between mb-3 relative z-10">
+              <div className="flex items-center space-x-2">
+                <Sparkles className="text-yellow-300" size={20} />
+                <h2 className="font-bold text-lg">Ask Flo AI</h2>
+              </div>
+              {!userSettings.isPremium && (
+                 <div className="bg-yellow-400 text-yellow-900 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center shadow-sm">
+                    <Lock size={10} className="mr-1" /> Premium
+                 </div>
+              )}
            </div>
            
            {!aiResponse && !isThinking ? (
-               <>
+               <div className="relative z-10">
                 <p className="text-purple-100 text-sm mb-4">
                     Have a question about your cycle, symptoms, or health? Ask me anything!
                 </p>
@@ -287,20 +352,28 @@ const Insights: React.FC<InsightsProps> = ({ userSettings, onUpdateSettings }) =
                         type="text" 
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
-                        placeholder="e.g., Is spotting normal during ovulation?"
-                        className="w-full bg-white/20 border border-white/30 rounded-xl px-4 py-3 pr-12 text-white placeholder-purple-200 focus:outline-none focus:bg-white/30 transition-colors"
+                        placeholder={userSettings.isPremium ? "e.g., Is spotting normal during ovulation?" : "Unlock to start chatting..."}
+                        className={`w-full bg-white/20 border border-white/30 rounded-xl px-4 py-3 pr-12 text-white placeholder-purple-200 focus:outline-none focus:bg-white/30 transition-colors ${!userSettings.isPremium ? 'pointer-events-none opacity-60' : ''}`}
                         onKeyDown={(e) => e.key === 'Enter' && handleAskAI()}
+                        disabled={!userSettings.isPremium}
                     />
                     <button 
-                        onClick={handleAskAI}
+                        onClick={(e) => { e.stopPropagation(); handleAskAI(); }}
                         className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-white text-purple-600 rounded-lg hover:bg-purple-50 transition-colors"
                     >
-                        <Send size={16} />
+                        {userSettings.isPremium ? <Send size={16} /> : <Lock size={16} />}
                     </button>
                 </div>
-               </>
+                {!userSettings.isPremium && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/10 backdrop-blur-[1px] rounded-xl border border-white/20">
+                         <button className="bg-white text-purple-700 font-bold text-sm px-4 py-2 rounded-full shadow-lg flex items-center hover:scale-105 transition-transform">
+                             Unlock for £9.99/mo
+                         </button>
+                    </div>
+                )}
+               </div>
            ) : (
-               <div className="animate-fade-in">
+               <div className="animate-fade-in relative z-10">
                    {isThinking ? (
                        <div className="flex flex-col items-center justify-center py-6">
                            <Loader className="animate-spin mb-2 text-white" />
@@ -326,20 +399,36 @@ const Insights: React.FC<InsightsProps> = ({ userSettings, onUpdateSettings }) =
         </div>
 
         {/* Featured Course */}
-        <div 
-            onClick={() => setSelectedCourse(MASTERING_CYCLE_COURSE)}
-            className="relative h-64 rounded-2xl overflow-hidden shadow-md group cursor-pointer transition-transform hover:scale-[1.01]"
-        >
-            <img src={MASTERING_CYCLE_COURSE.imageUrl} className="absolute inset-0 w-full h-full object-cover" alt="Yoga" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-6">
-                <span className="text-white text-xs font-bold uppercase tracking-wider mb-2 bg-rose-500 w-fit px-2 py-1 rounded">Course</span>
-                <h2 className="text-white text-2xl font-bold mb-1">{MASTERING_CYCLE_COURSE.title}</h2>
-                <div className="flex items-center text-white/90 text-sm space-x-2">
-                    <PlayCircle size={16} />
-                    <span>
-                        {MASTERING_CYCLE_COURSE.lessons.length} Lessons • 
-                        {userSettings.completedLessons && userSettings.completedLessons.length > 0 ? ` ${Math.round((userSettings.completedLessons.length / MASTERING_CYCLE_COURSE.lessons.length) * 100)}% Done` : ' 50 min'}
-                    </span>
+        <div>
+            <div className="flex items-center space-x-2 mb-3">
+                 <Star className="text-orange-500 fill-orange-500" size={18} />
+                 <h3 className="font-bold text-lg text-gray-800">Premium Courses</h3>
+            </div>
+            <div 
+                onClick={() => handleCourseClick(MASTERING_CYCLE_COURSE)}
+                className="relative h-64 rounded-2xl overflow-hidden shadow-md group cursor-pointer transition-transform hover:scale-[1.01]"
+            >
+                <img src={MASTERING_CYCLE_COURSE.imageUrl} className="absolute inset-0 w-full h-full object-cover" alt="Yoga" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent flex flex-col justify-end p-6">
+                    <div className="flex justify-between items-end">
+                        <div>
+                            <span className="text-white text-xs font-bold uppercase tracking-wider mb-2 bg-rose-500 w-fit px-2 py-1 rounded">Course</span>
+                            <h2 className="text-white text-2xl font-bold mb-1 leading-tight w-3/4">{MASTERING_CYCLE_COURSE.title}</h2>
+                            <div className="flex items-center text-white/90 text-sm space-x-2">
+                                <PlayCircle size={16} />
+                                <span>
+                                    {MASTERING_CYCLE_COURSE.lessons.length} Lessons • 
+                                    {userSettings.completedLessons && userSettings.completedLessons.length > 0 ? ` ${Math.round((userSettings.completedLessons.length / MASTERING_CYCLE_COURSE.lessons.length) * 100)}% Done` : ' 50 min'}
+                                </span>
+                            </div>
+                        </div>
+                        {!(userSettings.purchasedCourses || []).includes(MASTERING_CYCLE_COURSE.id) && (
+                            <div className="bg-white text-gray-900 px-4 py-2 rounded-xl font-bold shadow-lg flex items-center">
+                                <Lock size={16} className="mr-2 text-gray-500" />
+                                £29.99
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>
