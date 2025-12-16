@@ -1,14 +1,17 @@
 
 import React, { useState, useRef } from 'react';
 import { UserSettings } from '../types';
-import { Camera, Activity, ChevronRight, LogOut, FileText, Shield, Baby, Moon, Droplet, Minus, Plus } from 'lucide-react';
+import { Camera, Activity, ChevronRight, LogOut, FileText, Shield, Baby, Moon, Droplet, Minus, Plus, ArrowLeft } from 'lucide-react';
 
 interface ProfileProps {
   userSettings: UserSettings;
   onUpdateSettings: (settings: Partial<UserSettings>) => void;
 }
 
+type ProfileView = 'main' | 'history' | 'privacy' | 'terms';
+
 const Profile: React.FC<ProfileProps> = ({ userSettings, onUpdateSettings }) => {
+  const [activeView, setActiveView] = useState<ProfileView>('main');
   const [isEditing, setIsEditing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -46,6 +49,162 @@ const Profile: React.FC<ProfileProps> = ({ userSettings, onUpdateSettings }) => 
     onUpdateSettings({ [field]: newValue });
   };
 
+  // --- Sub-Views ---
+
+  const CycleHistoryView = () => {
+    // Simulate history based on settings since we don't have a full historical DB
+    const history = [];
+    const currentStart = new Date(userSettings.lastPeriodStart);
+    
+    // Generate current + 5 past cycles
+    for (let i = 0; i < 6; i++) {
+        const start = new Date(currentStart);
+        start.setDate(start.getDate() - (i * userSettings.cycleLength));
+        
+        const end = new Date(start);
+        end.setDate(end.getDate() + userSettings.periodLength - 1);
+        
+        history.push({
+            cycleNumber: i,
+            startDate: start,
+            endDate: end,
+            length: userSettings.cycleLength,
+            periodLength: userSettings.periodLength
+        });
+    }
+
+    return (
+        <div className="bg-white min-h-full pb-20 animate-slide-in-right">
+            <div className="sticky top-0 bg-white border-b border-gray-100 p-4 flex items-center z-10 shadow-sm">
+                <button onClick={() => setActiveView('main')} className="p-2 hover:bg-gray-100 rounded-full mr-2 transition-colors">
+                    <ArrowLeft size={20} className="text-gray-600" />
+                </button>
+                <h2 className="font-bold text-lg text-gray-800">Cycle History</h2>
+            </div>
+            <div className="p-4 space-y-4">
+                {history.map((cycle, idx) => (
+                    <div key={idx} className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm flex flex-col hover:shadow-md transition-shadow">
+                        <div className="flex justify-between items-center mb-3">
+                            <span className={`text-xs font-bold uppercase tracking-wider ${idx === 0 ? 'text-teal-600' : 'text-gray-400'}`}>
+                                {idx === 0 ? 'Current Cycle' : `Previous Cycle`}
+                            </span>
+                            {idx === 0 && (
+                                <span className="bg-teal-50 text-teal-600 text-[10px] font-bold px-2 py-1 rounded-full animate-pulse">
+                                    Active
+                                </span>
+                            )}
+                        </div>
+                        <div className="flex justify-between items-center">
+                            <div>
+                                <p className="font-bold text-gray-800 text-lg">
+                                    {cycle.startDate.toLocaleDateString('en-US', {month: 'short', day: 'numeric'})}
+                                </p>
+                                <p className="text-xs text-gray-500 font-medium">Period Start</p>
+                            </div>
+                            <div className="flex flex-col items-center px-4">
+                                <div className="h-px w-full bg-gray-200 mb-1"></div>
+                                <span className="text-[10px] text-gray-400">{cycle.length} days</span>
+                            </div>
+                            <div className="text-right">
+                                <p className="font-bold text-gray-800 text-lg">
+                                    {cycle.periodLength} Days
+                                </p>
+                                <p className="text-xs text-gray-500 font-medium">Duration</p>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+                
+                <div className="text-center p-4">
+                    <p className="text-xs text-gray-400">
+                        History is calculated based on your average cycle settings and last period date.
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
+  };
+
+  const TextPageView = ({ title, content }: { title: string, content: React.ReactNode }) => (
+      <div className="bg-white min-h-full pb-20 animate-slide-in-right">
+        <div className="sticky top-0 bg-white border-b border-gray-100 p-4 flex items-center z-10 shadow-sm">
+            <button onClick={() => setActiveView('main')} className="p-2 hover:bg-gray-100 rounded-full mr-2 transition-colors">
+                <ArrowLeft size={20} className="text-gray-600" />
+            </button>
+            <h2 className="font-bold text-lg text-gray-800">{title}</h2>
+        </div>
+        <div className="p-6 prose prose-sm prose-purple max-w-none text-gray-600 leading-relaxed">
+            {content}
+        </div>
+      </div>
+  );
+
+  const PrivacyContent = (
+      <div className="space-y-4">
+        <p className="text-xs text-gray-400">Last updated: October 26, 2023</p>
+        
+        <h3 className="text-gray-900 font-bold text-base">1. Introduction</h3>
+        <p>FlowTracker ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclosure, and safeguard your information when you use our mobile application.</p>
+        
+        <h3 className="text-gray-900 font-bold text-base">2. Information We Collect</h3>
+        <p>We collect information that you voluntarily provide to us when you register on the application, express an interest in obtaining information about us or our products and services, or otherwise when you contact us.</p>
+        <ul className="list-disc pl-5 space-y-1">
+            <li><strong>Personal Data:</strong> Name, cycle data, health symptoms.</li>
+            <li><strong>Usage Data:</strong> Information about how you use our app.</li>
+        </ul>
+
+        <h3 className="text-gray-900 font-bold text-base">3. How We Use Your Information</h3>
+        <p>We use the information we collect or receive:</p>
+        <ul className="list-disc pl-5 space-y-1">
+            <li>To facilitate account creation and logon process.</li>
+            <li>To provide cycle predictions and health insights.</li>
+            <li>To send you administrative information.</li>
+        </ul>
+
+        <h3 className="text-gray-900 font-bold text-base">4. Data Security</h3>
+        <p>We use administrative, technical, and physical security measures to help protect your personal information. While we have taken reasonable steps to secure the personal information you provide to us, please be aware that despite our efforts, no security measures are perfect or impenetrable.</p>
+        
+        <h3 className="text-gray-900 font-bold text-base">5. Contact Us</h3>
+        <p>If you have questions or comments about this policy, you may email us at support@flowtracker.app</p>
+      </div>
+  );
+
+  const TermsContent = (
+      <div className="space-y-4">
+         <p className="text-xs text-gray-400">Last updated: October 26, 2023</p>
+         
+         <h3 className="text-gray-900 font-bold text-base">1. Agreement to Terms</h3>
+         <p>These Terms of Use constitute a legally binding agreement made between you, whether personally or on behalf of an entity ("you") and FlowTracker ("we," "us" or "our"), concerning your access to and use of the FlowTracker application.</p>
+         
+         <div className="bg-rose-50 border border-rose-100 p-4 rounded-xl my-4">
+             <h3 className="text-rose-700 font-bold text-base mb-2">2. Medical Disclaimer</h3>
+             <p className="text-rose-800 text-sm font-medium">FLOWTRACKER IS NOT A MEDICAL DEVICE AND DOES NOT PROVIDE MEDICAL ADVICE.</p>
+             <p className="text-rose-600 text-sm mt-2">The contents of the App, such as text, graphics, images, and other material contained on the App are for informational purposes only. The Content is not intended to be a substitute for professional medical advice, diagnosis, or treatment.</p>
+         </div>
+         
+         <h3 className="text-gray-900 font-bold text-base">3. User Representations</h3>
+         <p>By using the App, you represent and warrant that:</p>
+         <ul className="list-disc pl-5 space-y-1">
+             <li>All registration information you submit will be true, accurate, current, and complete.</li>
+             <li>You have the legal capacity and you agree to comply with these Terms of Use.</li>
+             <li>You are not a minor in the jurisdiction in which you reside.</li>
+         </ul>
+
+         <h3 className="text-gray-900 font-bold text-base">4. Modifications</h3>
+         <p>We reserve the right to change, modify, or remove the contents of the App at any time or for any reason at our sole discretion without notice.</p>
+         
+         <h3 className="text-gray-900 font-bold text-base">5. Governing Law</h3>
+         <p>These Terms shall be governed by and defined following the laws of the State of California. FlowTracker and yourself irrevocably consent that the courts of California shall have exclusive jurisdiction to resolve any dispute which may arise in connection with these terms.</p>
+      </div>
+  );
+
+  // --- Render Logic ---
+
+  if (activeView === 'history') return <CycleHistoryView />;
+  if (activeView === 'privacy') return <TextPageView title="Privacy Policy" content={PrivacyContent} />;
+  if (activeView === 'terms') return <TextPageView title="Terms of Use" content={TermsContent} />;
+
+  // Main Profile View
   return (
     <div className="flex flex-col h-full bg-gray-50 pb-24 overflow-y-auto animate-fade-in">
       {/* Header Profile Section */}
@@ -216,7 +375,10 @@ const Profile: React.FC<ProfileProps> = ({ userSettings, onUpdateSettings }) => 
                 <span className="text-xs text-gray-400">Avg Period Days</span>
              </div>
            </div>
-           <button className="w-full mt-4 flex items-center justify-between p-3 bg-teal-50 text-teal-700 rounded-xl font-medium text-sm hover:bg-teal-100 transition-colors">
+           <button 
+              onClick={() => setActiveView('history')}
+              className="w-full mt-4 flex items-center justify-between p-3 bg-teal-50 text-teal-700 rounded-xl font-medium text-sm hover:bg-teal-100 transition-colors"
+           >
               <span>View full cycle history</span>
               <ChevronRight size={16} />
            </button>
@@ -224,7 +386,10 @@ const Profile: React.FC<ProfileProps> = ({ userSettings, onUpdateSettings }) => 
 
         {/* Support & Privacy */}
         <div className="bg-white rounded-2xl p-1 shadow-sm overflow-hidden">
-           <button className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors border-b border-gray-50">
+           <button 
+                onClick={() => setActiveView('privacy')}
+                className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors border-b border-gray-50"
+            >
                <div className="flex items-center space-x-3">
                    <div className="p-2 bg-blue-50 rounded-lg">
                      <Shield size={18} className="text-blue-500" />
@@ -233,7 +398,10 @@ const Profile: React.FC<ProfileProps> = ({ userSettings, onUpdateSettings }) => 
                </div>
                <ChevronRight size={18} className="text-gray-300" />
            </button>
-           <button className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors border-b border-gray-50">
+           <button 
+                onClick={() => setActiveView('terms')}
+                className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors border-b border-gray-50"
+            >
                <div className="flex items-center space-x-3">
                    <div className="p-2 bg-purple-50 rounded-lg">
                      <FileText size={18} className="text-purple-500" />
