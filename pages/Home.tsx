@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import CircularTracker from '../components/CircularTracker';
 import DailyInsights from '../components/DailyInsights';
@@ -9,14 +10,15 @@ import { Calendar as CalendarIcon, Droplet, Moon, Minus, Plus } from 'lucide-rea
 
 interface HomeProps {
   userSettings: UserSettings;
+  onUpdateSettings: (settings: Partial<UserSettings>) => void;
 }
 
-const Home: React.FC<HomeProps> = ({ userSettings }) => {
+const Home: React.FC<HomeProps> = ({ userSettings, onUpdateSettings }) => {
   const [isLoggerOpen, setIsLoggerOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [dailyLog, setDailyLog] = useState<DailyLog | null>(null);
-  const [waterCups, setWaterCups] = useState(4); // Default/Mock state for water
-  const [sleepDuration, setSleepDuration] = useState(7.5); // Default 7.5 hours
+  const [waterCups, setWaterCups] = useState(userSettings.waterGoal || 4); 
+  const [sleepDuration, setSleepDuration] = useState(userSettings.sleepGoal || 7.5);
 
   // Pass selectedDate to recalculate the main wheel based on user selection
   const daysUntil = calculateDaysUntilPeriod(userSettings, selectedDate);
@@ -45,7 +47,12 @@ const Home: React.FC<HomeProps> = ({ userSettings }) => {
         date: dateToLog,
         symptoms: symptoms
     });
-    console.log(`Symptoms saved to database for ${dateToLog}:`, symptoms);
+  };
+
+  const togglePregnancyMode = () => {
+      const isPregnant = !userSettings.pregnancyMode;
+      // We can add a confirm dialog here if needed, but for "real-time" feel we just toggle
+      onUpdateSettings({ pregnancyMode: isPregnant });
   };
   
   // Calculate pregnancy chance for insights
@@ -135,6 +142,7 @@ const Home: React.FC<HomeProps> = ({ userSettings }) => {
         currentDay={cycleDay} 
         settings={userSettings}
         onLogPeriod={() => setIsLoggerOpen(true)}
+        isPregnancyMode={userSettings.pregnancyMode}
       />
 
       {/* Insights Section */}
@@ -143,9 +151,11 @@ const Home: React.FC<HomeProps> = ({ userSettings }) => {
         dailyLog={dailyLog}
         pregnancyChance={pregnancyChance}
         onLogClick={() => setIsLoggerOpen(true)}
+        isPregnancyMode={userSettings.pregnancyMode}
+        onPregnancyClick={togglePregnancyMode}
       />
 
-      {/* Health & Lifestyle Section (Replaces Promo) */}
+      {/* Health & Lifestyle Section */}
       <div className="px-4 mb-6">
         <h3 className="text-gray-800 font-bold text-lg mb-3">Health & Lifestyle</h3>
         <div className="grid grid-cols-2 gap-3">
@@ -206,9 +216,9 @@ const Home: React.FC<HomeProps> = ({ userSettings }) => {
             </div>
             <div className="z-10 mt-2">
                  <div className="w-full bg-indigo-200 h-1.5 rounded-full overflow-hidden">
-                    <div className="bg-indigo-500 h-full rounded-full transition-all duration-300" style={{ width: `${Math.min((sleepDuration / 8) * 100, 100)}%` }}></div>
+                    <div className="bg-indigo-500 h-full rounded-full transition-all duration-300" style={{ width: `${Math.min((sleepDuration / (userSettings.sleepGoal || 8)) * 100, 100)}%` }}></div>
                 </div>
-                <span className="text-[10px] text-indigo-400 font-medium mt-1 block text-right">Target: 8h</span>
+                <span className="text-[10px] text-indigo-400 font-medium mt-1 block text-right">Target: {userSettings.sleepGoal || 8}h</span>
             </div>
             
             {/* Decorative */}

@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { Droplets, Plus, Info } from 'lucide-react';
+import { Droplets, Plus, Info, Baby } from 'lucide-react';
 import { DailyLog } from '../types';
 import { MOCK_SYMPTOMS } from '../constants';
 
@@ -8,9 +9,18 @@ interface DailyInsightsProps {
   dailyLog: DailyLog | null;
   pregnancyChance: 'High' | 'Medium' | 'Low';
   onLogClick: () => void;
+  isPregnancyMode?: boolean;
+  onPregnancyClick?: () => void;
 }
 
-const DailyInsights: React.FC<DailyInsightsProps> = ({ date, dailyLog, pregnancyChance, onLogClick }) => {
+const DailyInsights: React.FC<DailyInsightsProps> = ({ 
+  date, 
+  dailyLog, 
+  pregnancyChance, 
+  onLogClick,
+  isPregnancyMode,
+  onPregnancyClick
+}) => {
   // Filter symptoms from log
   const loggedSymptomIds = dailyLog?.symptoms || [];
   const loggedSymptomsData = loggedSymptomIds.map(id => MOCK_SYMPTOMS.find(s => s.id === id)).filter(Boolean);
@@ -26,7 +36,18 @@ const DailyInsights: React.FC<DailyInsightsProps> = ({ date, dailyLog, pregnancy
       label: "Low Chance"
   };
   
-  if (pregnancyChance === 'High') {
+  let displayText: string = pregnancyChance;
+
+  if (isPregnancyMode) {
+      chanceStyle = {
+          color: "text-amber-600",
+          bg: "bg-amber-50",
+          barColor: "bg-amber-500",
+          barWidth: "w-full",
+          label: "Tracking"
+      };
+      displayText = "Pregnant";
+  } else if (pregnancyChance === 'High') {
       chanceStyle = {
           color: "text-teal-600",
           bg: "bg-teal-50",
@@ -110,15 +131,19 @@ const DailyInsights: React.FC<DailyInsightsProps> = ({ date, dailyLog, pregnancy
           </div>
         </div>
 
-        {/* Card 3: Pregnancy Chance */}
-        <div className={`flex-shrink-0 w-32 h-32 ${chanceStyle.bg} rounded-2xl p-3 flex flex-col justify-between border border-transparent shadow-sm relative overflow-hidden`}>
+        {/* Card 3: Pregnancy Chance / Mode */}
+        <div 
+            onClick={onPregnancyClick}
+            className={`flex-shrink-0 w-32 h-32 ${chanceStyle.bg} rounded-2xl p-3 flex flex-col justify-between border border-transparent shadow-sm relative overflow-hidden cursor-pointer active:scale-95 transition-transform`}
+            title="Toggle Pregnancy Mode"
+        >
           <div className="flex justify-between items-start z-10">
              <span className={`${chanceStyle.color} font-bold text-xs leading-tight opacity-80`}>Pregnancy</span>
-             <Info size={12} className={chanceStyle.color} />
+             {isPregnancyMode ? <Baby size={14} className={chanceStyle.color} /> : <Info size={12} className={chanceStyle.color} />}
           </div>
           
           <div className="flex flex-col items-center justify-center z-10 flex-1">
-             <span className={`text-lg font-extrabold ${chanceStyle.color}`}>{pregnancyChance}</span>
+             <span className={`text-lg font-extrabold ${chanceStyle.color}`}>{displayText}</span>
              <span className={`text-[10px] font-medium ${chanceStyle.color} opacity-75`}>{chanceStyle.label}</span>
           </div>
           

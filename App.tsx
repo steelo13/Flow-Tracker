@@ -71,7 +71,7 @@ const App: React.FC = () => {
   const renderPage = () => {
     switch (currentRoute) {
       case AppRoute.HOME:
-        return <Home userSettings={userSettings} />;
+        return <Home userSettings={userSettings} onUpdateSettings={handleUpdateSettings} />;
       case AppRoute.PARTNERS:
         return <Partners userSettings={userSettings} />;
       case AppRoute.INSIGHTS:
@@ -81,7 +81,7 @@ const App: React.FC = () => {
       case AppRoute.PROFILE:
         return <Profile userSettings={userSettings} onUpdateSettings={handleUpdateSettings} onLogout={handleLogout} />;
       default:
-        return <Home userSettings={userSettings} />;
+        return <Home userSettings={userSettings} onUpdateSettings={handleUpdateSettings} />;
     }
   };
 
