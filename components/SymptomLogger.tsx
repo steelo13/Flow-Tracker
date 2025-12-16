@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { 
   X, Check, Zap, Frown, Wind, Meh, Smile, RefreshCw, 
   BatteryLow, Droplet, Cloud, Activity, Thermometer
@@ -25,10 +26,18 @@ interface SymptomLoggerProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (symptoms: string[]) => void;
+  initialSelected?: string[];
 }
 
-const SymptomLogger: React.FC<SymptomLoggerProps> = ({ isOpen, onClose, onSave }) => {
+const SymptomLogger: React.FC<SymptomLoggerProps> = ({ isOpen, onClose, onSave, initialSelected = [] }) => {
   const [selected, setSelected] = useState<string[]>([]);
+
+  // Sync state when modal opens or initialSelected changes
+  useEffect(() => {
+    if (isOpen) {
+      setSelected(initialSelected);
+    }
+  }, [isOpen, initialSelected]);
 
   const toggleSymptom = (id: string) => {
     setSelected(prev => 

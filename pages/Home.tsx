@@ -28,6 +28,8 @@ const Home: React.FC<HomeProps> = ({ userSettings, onUpdateSettings }) => {
   useEffect(() => {
     let isMounted = true;
     const fetchLog = async () => {
+        // Reset log while fetching to avoid showing previous date's data
+        setDailyLog(null);
         const log = await getDailyLog(selectedDate.toISOString());
         if (isMounted) {
             setDailyLog(log);
@@ -42,11 +44,14 @@ const Home: React.FC<HomeProps> = ({ userSettings, onUpdateSettings }) => {
     const dateToLog = selectedDate.toISOString();
     await logDailySymptoms(dateToLog, symptoms);
     
-    // Optimistic update
-    setDailyLog({
+    // Optimistic update - preserve existing log data if any
+    setDailyLog(prev => ({
         date: dateToLog,
-        symptoms: symptoms
-    });
+        symptoms: symptoms,
+        mood: prev?.mood,
+        flow: prev?.flow || 'medium', // Default to medium if new
+        notes: prev?.notes
+    }));
   };
 
   const togglePregnancyMode = () => {
@@ -232,6 +237,7 @@ const Home: React.FC<HomeProps> = ({ userSettings, onUpdateSettings }) => {
         isOpen={isLoggerOpen} 
         onClose={() => setIsLoggerOpen(false)}
         onSave={handleSaveSymptoms}
+        initialSelected={dailyLog?.symptoms || []}
       />
     </div>
   );
