@@ -33,7 +33,7 @@ const DailyInsights: React.FC<DailyInsightsProps> = ({
       bg: "bg-gray-100",
       barColor: "bg-gray-300",
       barWidth: "w-1/4",
-      label: "Low Chance"
+      label: "Tracking"
   };
   
   let displayText: string = pregnancyChance;
@@ -70,7 +70,7 @@ const DailyInsights: React.FC<DailyInsightsProps> = ({
           bg: "bg-rose-50",
           barColor: "bg-rose-300",
           barWidth: "w-1/5",
-          label: "Low Chance"
+          label: "Tracking"
       };
   }
 
