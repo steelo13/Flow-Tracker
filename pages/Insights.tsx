@@ -366,9 +366,15 @@ const Insights: React.FC<InsightsProps> = ({ userSettings, onUpdateSettings }) =
                 </div>
                 {!userSettings.isPremium && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/10 backdrop-blur-[1px] rounded-xl border border-white/20">
-                         <button className="bg-white text-purple-700 font-bold text-sm px-4 py-2 rounded-full shadow-lg flex items-center hover:scale-105 transition-transform">
+                         <a 
+                            href="https://buy.stripe.com/eVq14p5Y2eNhdiK5iMes002"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="bg-white text-purple-700 font-bold text-sm px-4 py-2 rounded-full shadow-lg flex items-center hover:scale-105 transition-transform no-underline"
+                         >
                              Unlock for £9.99/mo
-                         </button>
+                         </a>
                     </div>
                 )}
                </div>
