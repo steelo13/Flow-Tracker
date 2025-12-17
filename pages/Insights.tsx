@@ -429,10 +429,16 @@ const Insights: React.FC<InsightsProps> = ({ userSettings, onUpdateSettings }) =
                             </div>
                         </div>
                         {!(userSettings.purchasedCourses || []).includes(MASTERING_CYCLE_COURSE.id) && (
-                            <div className="bg-white text-gray-900 px-4 py-2 rounded-xl font-bold shadow-lg flex items-center">
+                            <a 
+                                href="https://buy.stripe.com/bJe8wR2LQ20v2E612wes003"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                className="bg-white text-gray-900 px-4 py-2 rounded-xl font-bold shadow-lg flex items-center hover:scale-105 transition-transform no-underline"
+                            >
                                 <Lock size={16} className="mr-2 text-gray-500" />
                                 £29.99
-                            </div>
+                            </a>
                         )}
                     </div>
                 </div>
